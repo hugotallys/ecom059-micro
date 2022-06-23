@@ -18,41 +18,94 @@ State	|         Binary		| Hexadecimal |  Time   |
 .def timeInt = R18		; Define time interval register
 .def currState = R19		; Define loop count register
 .def temp = R20
+.def stateTimer = R21
 
 .equ clkPin = PINB2
 .equ latchPin = PINB1
 .equ dataPin = PINB0
 
 .cseg
-.org 0
+jmp reset
 
-pArr:
-	.db	0x32, 0x92, 0x20, \
-		0x52, 0x92, 0x05, \
-		0x91, 0x91, 0x10, \
-		0x92, 0x92, 0x05, \
-		0x86, 0x32, 0x20, \
-		0x86, 0x52, 0x05, \
-		0x86, 0x86, 0x50, \
-		0x8A, 0x8A, 0x05
+.org OC1Aaddr
+jmp OCI1A_Interrupt
 
-ldi temp, 0b11111111        
-out DDRB, temp            ;configura PORTB como saí­da
+OCI1A_Interrupt:
+	push r16
+	in r16, SREG
+	push r16
+	
+	inc stateTimer
+	cp	stateTimer, timeInt
+	brne skip
+	rcall setState
+	skip:
+		pop r16
+		out SREG, r16
+		pop r16
+		reti
 
-ldi	R16, LOW(RAMEND)		; load low byte of RAMEND into r16
-out	SPL, R16			; store r16 in stack pointer low
-ldi	R16, HIGH(RAMEND)	; load high byte of RAMEND into r16
-out	SPH, R16			; store r16 in stack pointer high
+reset:
+	pArr:	.db	0x32, 0x92, 20, \
+			0x52, 0x92, 5, \
+			0x91, 0x91, 10, \
+			0x92, 0x92, 05, \
+			0x86, 0x32, 20, \
+			0x86, 0x52, 5, \
+			0x86, 0x86, 50, \
+			0x8A, 0x8A, 5
+	
+	; Stack initialization
+	ldi	temp, LOW(RAMEND)		; load low byte of RAMEND into r16
+	out	SPL, temp			; store r16 in stack pointer low
+	ldi	temp, HIGH(RAMEND)	; load high byte of RAMEND into r16
+	out	SPH, temp			; store r16 in stack pointer high
 
-rcall resetState
-rcall setState
+	ldi temp, 0b11111111        
+	out DDRB, temp            ;configura PORTB como saí­da
+	
+	#define CLOCK 16.0e6 ;clock speed
+	#define DELAY 1.0 ;seconds
+	.equ PRESCALE = 0b100 ;/256 prescale
+	.equ PRESCALE_DIV = 256
+	.equ WGM = 0b0100 ;Waveform generation mode: CTC
+	;you must ensure this value is between 0 and 65535
+	.equ TOP = int(0.5 + ((CLOCK/PRESCALE_DIV)*DELAY))
+	.if TOP > 65535
+	.error "TOP is out of range"
+	.endif
 
-loop:
-  rcall setState							; Infinite loop
-  rjmp	loop
+	;On MEGA series, write high byte of 16-bit timer registers first
+	ldi temp, high(TOP) ;initialize compare value (TOP)
+	sts OCR1AH, temp
+	ldi temp, low(TOP)
+	sts OCR1AL, temp
+	ldi temp, ((WGM&0b11) << WGM10) ;lower 2 bits of WGM
+	; WGM&0b11 = 0b0100 & 0b0011 = 0b0000 
+	sts TCCR1A, temp
+	;upper 2 bits of WGM and clock select
+	ldi temp, ((WGM>> 2) << WGM12)|(PRESCALE << CS10)
+	; WGM >> 2 = 0b0100 >> 2 = 0b0001
+	; (WGM >> 2) << WGM12 = (0b0001 << 3) = 0b0001000
+	; (PRESCALE << CS10) = 0b100 << 0 = 0b100
+	; 0b0001000 | 0b100 = 0b0001100
+	sts TCCR1B, temp ;start counter
+
+	lds r16, TIMSK1
+	sbr r16, 1 <<OCIE1A
+	sts TIMSK1, r16
+
+	rcall resetState
+	rcall setState
+
+	sei
+
+	loop:
+	  ;rcall setState							; Infinite loop
+	  rjmp	loop
 
 resetState:
-  ldi		currState, 0x00 
+  ldi		currState, 0x00
   ret
 
 setState:
@@ -62,6 +115,7 @@ setState:
 	lpm ledsL, Z+						; Load LED LOW value from flash memory
 	lpm ledsH, Z+						; Load LED HIGH value from flash memory
 	lpm timeInt, Z+						; Load time interval value from fash memory
+	ldi stateTimer, 0x00
 	subi currState, -3
   
 	; For loop

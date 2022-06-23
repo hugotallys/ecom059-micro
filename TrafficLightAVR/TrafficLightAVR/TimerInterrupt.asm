@@ -12,7 +12,7 @@
 ;A cada intervalo os LEDs piscam
 ;4 LEDs conectados a PORTB
 
-.def temp = r16
+.def temp = R20
 .def leds = r17 ;current LED value
 .cseg
 

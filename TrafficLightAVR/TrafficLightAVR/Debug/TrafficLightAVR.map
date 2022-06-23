@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\TimerInterrupt.asm Thu Jun 23 10:10:06 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Thu Jun 23 11:12:02 2022
 
 
 EQU  SIGNATURE_000 0000001e
@@ -695,12 +695,29 @@ EQU  ACIaddr      0000002e
 EQU  TWIaddr      00000030
 EQU  SPMRaddr     00000032
 EQU  INT_VECTORS_SIZE 00000034
-DEF  temp         r16
-DEF  leds         r17
-CSEG reset        00000022
+DEF  ledsL        r16
+DEF  ledsH        r17
+DEF  timeInt      r18
+DEF  currState    r19
+DEF  temp         r20
+DEF  stateTimer   r21
+EQU  clkPin       00000002
+EQU  latchPin     00000001
+EQU  dataPin      00000000
+CSEG reset        00000023
 CSEG OCI1A_Interrupt 00000018
+CSEG skip         0000001f
+CSEG setState     0000004c
+CSEG pArr         00000023
 EQU  PRESCALE     00000004
 EQU  PRESCALE_DIV 00000100
 EQU  WGM          00000004
-EQU  TOP          0000f424
-CSEG main_lp      0000003c
+EQU  TOP          0000003f
+CSEG resetState   0000004a
+CSEG loop         00000049
+CSEG lowForLoop   00000055
+CSEG endLowForLoop 00000061
+CSEG passLow      0000005c
+CSEG highForLoop  00000062
+CSEG endHighForLoop 0000006e
+CSEG passHigh     00000069
