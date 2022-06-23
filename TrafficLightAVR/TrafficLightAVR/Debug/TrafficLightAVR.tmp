@@ -7,7 +7,7 @@
   <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
   <DIR></DIR>
  </INCLUDE_PATH>
- <SOURCE_FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</SOURCE_FILE>
+ <SOURCE_FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\TimerInterrupt.asm</SOURCE_FILE>
  <INCLUDED_FILES>
   <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc</FILE>
  </INCLUDED_FILES>
@@ -22,15 +22,8 @@
   <FILE>TrafficLightAVR.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <pArr><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>205</LINE></pArr>
-  <resetState><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>229</LINE></resetState>
-  <setState><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>253</LINE></setState>
-  <loop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>225</LINE></loop>
-  <lowForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>264</LINE></lowForLoop>
-  <endLowForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>278</LINE></endLowForLoop>
-  <passLow><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>272</LINE></passLow>
-  <highForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>280</LINE></highForLoop>
-  <endHighForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>294</LINE></endHighForLoop>
-  <passHigh><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>288</LINE></passHigh>
+  <reset><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\TimerInterrupt.asm</FILE><LINE>38</LINE></reset>
+  <OCI1A_Interrupt><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\TimerInterrupt.asm</FILE><LINE>23</LINE></OCI1A_Interrupt>
+  <main_lp><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\TimerInterrupt.asm</FILE><LINE>83</LINE></main_lp>
  </LABELS>
 </ASSEMBLER_INFO>
