@@ -193,6 +193,14 @@ ISR(TIMER1_COMPA_vect) {
 .def	ledsH	= R17		; Define led high register
 .def	timeInt	= R18		; Define time interval register
 .def	currState	= R19		; Define loop count register
+.def	temp	= R20
+
+.equ	clkPin	= PINB2
+.equ	latchPin = PINB1
+.equ	dataPin	= PINB0
+
+.cseg
+.org 0
 
 pArr:	.db		0x32, 0x92, 0x20, \
             0x52, 0x92, 0x05, \
@@ -202,6 +210,14 @@ pArr:	.db		0x32, 0x92, 0x20, \
             0x86, 0x52, 0x05, \
             0x86, 0x86, 0x50, \
             0x8A, 0x8A, 0x05
+
+ldi temp, 0b11111111        
+out DDRB, temp            ;configura PORTB como saí­da
+
+ldi	r16,LOW(RAMEND)		; load low byte of RAMEND into r16
+out	SPL,r16			; store r16 in stack pointer low
+ldi	r16,HIGH(RAMEND)	; load high byte of RAMEND into r16
+out	SPH,r16			; store r16 in stack pointer high
 
 rcall resetState
 rcall	setState
@@ -214,14 +230,74 @@ resetState:
   ldi		currState, 0x00 
   ret
 
+/*void setState(int state)
+{
+  int bit = 0;
+  for (int i = 0; i < 16; i += 1)
+  {
+	bit = (state >> i) & 1;
+    if (bit == 0)
+    {
+      digitalWrite(data, LOW);
+    } else {
+      digitalWrite(data, HIGH);
+    }
+    digitalWrite(clk, HIGH);
+  	digitalWrite(clk, LOW); 
+  }
+  digitalWrite(latch, LOW);
+  digitalWrite(latch, HIGH);
+  digitalWrite(latch, LOW);
+}*/
+
 setState:
-  ldi		ZL, LOW(2*pArr)			; Initialize Z pointer
-  ldi		ZH, HIGH(2*pArr)		; to pmem array address
-  add		ZL, currState
-  lpm		ledsL, Z+						; Load LED LOW value from flash memory
-  lpm		ledsH, Z+						; Load LED HIGH value from flash memory
-  lpm		timeInt, Z+						; Load time interval value from fash memory
-  subi	currState, -3
-  cpi		currState, 24
-  breq	resetState
-  ret
+	ldi		ZL, LOW(2*pArr)			; Initialize Z pointer
+	ldi		ZH, HIGH(2*pArr)		; to pmem array address
+	add		ZL, currState
+	lpm		ledsL, Z+						; Load LED LOW value from flash memory
+	lpm		ledsH, Z+						; Load LED HIGH value from flash memory
+	lpm		timeInt, Z+						; Load time interval value from fash memory
+	subi	currState, -3
+  
+	; For loop
+	ldi temp, 1
+	lowForLoop:
+		cpi	temp, 0b10000000
+		breq endLowForLoop
+		push temp
+		and temp, ledsL
+		pop temp
+		breq passLow
+		sbi PORTB, dataPin
+	passLow:
+		sbi	PORTB, clkPin
+		cbi	PORTB, clkPin
+		cbi PORTB, dataPin
+		lsl temp
+		rjmp lowForLoop
+	endLowForLoop:
+		ldi temp, 1
+	highForLoop:
+		cpi	temp, 0b10000000
+		breq endHighForLoop
+		push temp
+		and temp, ledsH
+		pop temp
+		breq passHigh
+		sbi PORTB, dataPin
+	passHigh:
+		sbi	PORTB, clkPin
+		cbi	PORTB, clkPin
+		cbi PORTB, dataPin
+		lsl temp
+		rjmp highForLoop
+	endHighForLoop:
+	; end For loop
+
+	cbi	PORTB, latchPin
+	sbi	PORTB, latchPin
+	cbi	PORTB, latchPin
+
+	cpi		currState, 24
+	breq	resetState
+	ret

@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Wed Jun 22 23:23:36 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Thu Jun 23 01:09:00 2022
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
@@ -986,7 +986,7 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  ; ***** END OF FILE ******************************************************
                                  
                                  
-                                 State	|         Binary		| Hexadecimal |  Time   |
+                                 State	|         Binary		    | Hexadecimal |  Time   |
                                  -----	| ---------------------	| ----------- | ------- |
                                  10000	| 001 100 10 100 100 10	|    32 92    |  20.13  |
                                  20000	| 010 100 10 100 100 10	|    52 92    |  04.22  |
@@ -1179,6 +1179,14 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  .def	ledsH	= R17		; Define led high register
                                  .def	timeInt	= R18		; Define time interval register
                                  .def	currState	= R19		; Define loop count register
+                                 .def	temp	= R20
+                                 
+                                 .equ	clkPin	= PINB2
+                                 .equ	latchPin = PINB1
+                                 .equ	dataPin	= PINB0
+                                 
+                                 .cseg
+                                 .org 0
                                  
 000000 9232                      pArr:	.db		0x32, 0x92, 0x20, \
 000001 5220                                  0x52, 0x92, 0x05, \
@@ -1193,27 +1201,95 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
 00000a 8a50
 00000b 058a                                  0x8A, 0x8A, 0x05
                                  
-00000c d003                      rcall resetState
-00000d d004                      rcall	setState
+00000c ef4f                      ldi temp, 0b11111111        
+00000d b944                      out DDRB, temp            ;configura PORTB como saí­da
+                                 
+00000e ef0f                      ldi	r16,LOW(RAMEND)		; load low byte of RAMEND into r16
+00000f bf0d                      out	SPL,r16			; store r16 in stack pointer low
+000010 e008                      ldi	r16,HIGH(RAMEND)	; load high byte of RAMEND into r16
+000011 bf0e                      out	SPH,r16			; store r16 in stack pointer high
+                                 
+000012 d003                      rcall resetState
+000013 d004                      rcall	setState
                                  
                                  loop:
-00000e d003                        rcall	setState							; Infinite loop
-00000f cffe                        rjmp	loop
+000014 d003                        rcall	setState							; Infinite loop
+000015 cffe                        rjmp	loop
                                  
                                  resetState:
-000010 e030                        ldi		currState, 0x00 
-000011 9508                        ret
+000016 e030                        ldi		currState, 0x00 
+000017 9508                        ret
+                                 
+                                 /*void setState(int state)
+                                 {
+                                   int bit = 0;
+                                   for (int i = 0; i < 16; i += 1)
+                                   {
+                                 	bit = (state >> i) & 1;
+                                     if (bit == 0)
+                                     {
+                                       digitalWrite(data, LOW);
+                                     } else {
+                                       digitalWrite(data, HIGH);
+                                     }
+                                     digitalWrite(clk, HIGH);
+                                   	digitalWrite(clk, LOW); 
+                                   }
+                                   digitalWrite(latch, LOW);
+                                   digitalWrite(latch, HIGH);
+                                   digitalWrite(latch, LOW);
+                                 }*/
                                  
                                  setState:
-000012 e0e0                        ldi		ZL, LOW(2*pArr)			; Initialize Z pointer
-000013 e0f0                        ldi		ZH, HIGH(2*pArr)		; to pmem array address
-000014 0fe3                        add		ZL, currState
-000015 9105                        lpm		ledsL, Z+						; Load LED LOW value from flash memory
-000016 9115                        lpm		ledsH, Z+						; Load LED HIGH value from flash memory
-000017 9125                        lpm		timeInt, Z+						; Load time interval value from fash memory
-000018 5f3d                        subi	currState, -3
-000019 3138                        cpi		currState, 24
-00001a f3a9                        breq	resetState
+000018 e0e0                      	ldi		ZL, LOW(2*pArr)			; Initialize Z pointer
+000019 e0f0                      	ldi		ZH, HIGH(2*pArr)		; to pmem array address
+00001a 0fe3                      	add		ZL, currState
+00001b 9105                      	lpm		ledsL, Z+						; Load LED LOW value from flash memory
+00001c 9115                      	lpm		ledsH, Z+						; Load LED HIGH value from flash memory
+00001d 9125                      	lpm		timeInt, Z+						; Load time interval value from fash memory
+00001e 5f3d                      	subi	currState, -3
+                                   
+                                 	; For loop
+00001f e041                      	ldi temp, 1
+                                 	lowForLoop:
+000020 3840                      		cpi	temp, 0b10000000
+000021 f051                      		breq endLowForLoop
+000022 934f                      		push temp
+000023 2340                      		and temp, ledsL
+000024 914f                      		pop temp
+000025 f009                      		breq passLow
+000026 9a28                      		sbi PORTB, dataPin
+                                 	passLow:
+000027 9a2a                      		sbi	PORTB, clkPin
+000028 982a                      		cbi	PORTB, clkPin
+000029 9828                      		cbi PORTB, dataPin
+00002a 0f44                      		lsl temp
+00002b cff4                      		rjmp lowForLoop
+                                 	endLowForLoop:
+00002c e041                      		ldi temp, 1
+                                 	highForLoop:
+00002d 3840                      		cpi	temp, 0b10000000
+00002e f051                      		breq endHighForLoop
+00002f 934f                      		push temp
+000030 2341                      		and temp, ledsH
+000031 914f                      		pop temp
+000032 f009                      		breq passHigh
+000033 9a28                      		sbi PORTB, dataPin
+                                 	passHigh:
+000034 9a2a                      		sbi	PORTB, clkPin
+000035 982a                      		cbi	PORTB, clkPin
+000036 9828                      		cbi PORTB, dataPin
+000037 0f44                      		lsl temp
+000038 cff4                      		rjmp highForLoop
+                                 	endHighForLoop:
+                                 	; end For loop
+                                 
+000039 9829                      	cbi	PORTB, latchPin
+00003a 9a29                      	sbi	PORTB, latchPin
+00003b 9829                      	cbi	PORTB, latchPin
+                                 
+00003c 3138                      	cpi		currState, 24
+00003d f2c1                      	breq	resetState
 
 
 RESOURCE USE INFORMATION
@@ -1233,37 +1309,37 @@ counted separately from r26..r31 here.
 "ATmega328P" register use summary:
 x  :   0 y  :   0 z  :   3 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:   1 r17:   1 r18:   1 r19:   4 r20:   0 
+r13:   0 r14:   0 r15:   0 r16:   6 r17:   2 r18:   1 r19:   4 r20:  14 
 r21:   0 r22:   0 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
 r29:   0 r30:   2 r31:   1 
-Registers used: 7 out of 35 (20.0%)
+Registers used: 8 out of 35 (22.9%)
 
 "ATmega328P" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   1 adiw  :   0 and   :   0 
+.lds  :   0 .sts  :   0 adc   :   0 add   :   1 adiw  :   0 and   :   2 
 andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :   1 brge  :   0 brhc  :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :   5 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :   0 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   0 cbr   :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   6 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :   1 cpse  :   0 dec   :   0 eor   :   0 fmul  :   0 fmuls :   0 
+cpi   :   3 cpse  :   0 dec   :   0 eor   :   0 fmul  :   0 fmuls :   0 
 fmulsu:   0 icall :   0 ijmp  :   0 in    :   0 inc   :   0 jmp   :   0 
-ld    :   0 ldd   :   0 ldi   :   3 lds   :   0 lpm   :   3 lsl   :   0 
+ld    :   0 ldd   :   0 ldi   :   8 lds   :   0 lpm   :   3 lsl   :   2 
 lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :   0 pop   :   0 
-push  :   0 rcall :   3 ret   :   2 reti  :   0 rjmp  :   1 rol   :   0 
-ror   :   0 sbc   :   0 sbci  :   0 sbi   :   0 sbic  :   0 sbis  :   0 
+neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :   3 pop   :   2 
+push  :   2 rcall :   3 ret   :   2 reti  :   0 rjmp  :   3 rol   :   0 
+ror   :   0 sbc   :   0 sbci  :   0 sbi   :   5 sbic  :   0 sbis  :   0 
 sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 
 sei   :   0 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
 sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   0 
 sub   :   0 subi  :   1 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 9 out of 113 (8.0%)
+Instructions used: 16 out of 113 (14.2%)
 
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000038     32     24     56   32768   0.2%
+[.cseg] 0x000000 0x00007e    102     24    126   32768   0.4%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 
