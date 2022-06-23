@@ -1,6 +1,6 @@
 /*
 
-State	|         Binary		| Hexadecimal |  Time   |
+State	|         Binary		    | Hexadecimal |  Time   |
 -----	| ---------------------	| ----------- | ------- |
 10000	| 001 100 10 100 100 10	|    32 92    |  20.13  |
 20000	| 010 100 10 100 100 10	|    52 92    |  04.22  |
@@ -188,35 +188,40 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 */
-		.equ	nStates	= 8			; Number of states
 
-		.def	ledsL	= R16		; Define led low register
-		.def	ledsH	= R17		; Define led high register
-		.def	timeInt	= R18		; Define time interval register
-		.def	loopCt	= R19		; Define loop count register
+.def	ledsL	= R16		; Define led low register
+.def	ledsH	= R17		; Define led high register
+.def	timeInt	= R18		; Define time interval register
+.def	currState	= R19		; Define loop count register
 
 pArr:	.db		0x32, 0x92, 0x20, \
-				0x52, 0x92, 0x05, \
-				0x91, 0x91, 0x10, \
-				0x92, 0x92, 0x05, \
-				0x86, 0x32, 0x20, \
-				0x86, 0x52, 0x05, \
-				0x86, 0x86, 0x50, \
-				0x8A, 0x8A, 0x05
+            0x52, 0x92, 0x05, \
+            0x91, 0x91, 0x10, \
+            0x92, 0x92, 0x05, \
+            0x86, 0x32, 0x20, \
+            0x86, 0x52, 0x05, \
+            0x86, 0x86, 0x50, \
+            0x8A, 0x8A, 0x05
 
-		rcall	resetState
+rcall resetState
+rcall	setState
 
-loop:	
-		lpm		ledsL, Z+						; Load LED LOW value from flash memory
-		lpm		ledsH, Z+						; Load LED HIGH value from flash memory
-		lpm		timeInt, Z+						; Load time interval value from fash memory
-		dec		loopCt
-		brne	loop
-		rcall	resetState							; Infinite loop
-		rjmp	loop
+loop:
+  rcall	setState							; Infinite loop
+  rjmp	loop
 
 resetState:
-		ldi		ZL, LOW(2*pArr)			; Initialize Z pointer
-		ldi		ZH, HIGH(2*pArr)		; to pmem array address
-		ldi		loopCt, nStates			; Initialize loop count to number of states
-		ret
+  ldi		currState, 0x00 
+  ret
+
+setState:
+  ldi		ZL, LOW(2*pArr)			; Initialize Z pointer
+  ldi		ZH, HIGH(2*pArr)		; to pmem array address
+  add		ZL, currState
+  lpm		ledsL, Z+						; Load LED LOW value from flash memory
+  lpm		ledsH, Z+						; Load LED HIGH value from flash memory
+  lpm		timeInt, Z+						; Load time interval value from fash memory
+  subi	currState, -3
+  cpi		currState, 24
+  breq	resetState
+  ret
