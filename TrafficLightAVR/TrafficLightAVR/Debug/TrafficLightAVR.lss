@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Wed Jun 22 19:39:42 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Wed Jun 22 22:33:52 2022
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
@@ -1174,19 +1174,41 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  }
                                  
                                  */
+                                 		.equ	nStates	= 8			; Number of states
                                  
-                                 ; Define symbolic names for resources used
+                                 		.def	ledsL	= R16		; Define led low register
+                                 		.def	ledsH	= R17		; Define led high register
+                                 		.def	timeInt	= R18		; Define time interval register
+                                 		.def	loopCt	= R19		; Define loop count register
                                  
-                                 .def count = R16		; Reg 16 will hold counter value
-                                 .def temp = R17			; Reg 17 is used as a temporary register
+000000 9232                      pArr:	.db		0x32, 0x92, 0x20, \
+000001 5220                      				0x52, 0x92, 0x05, \
+000002 0592
+000003 9191                      				0x91, 0x91, 0x10, \
+000004 9210                      				0x92, 0x92, 0x05, \
+000005 0592
+000006 3286                      				0x86, 0x32, 0x20, \
+000007 8620                      				0x86, 0x52, 0x05, \
+000008 0552
+000009 8686                      				0x86, 0x86, 0x50, \
+00000a 8a50
+00000b 058a                      				0x8A, 0x8A, 0x05
                                  
-000000 ef1f                      ldi temp, 0xFF			; Configure PORTB as output
-000001 b914                      out DDRB, temp
-000002 e000                      ldi count, 0x00			; Initialize count at 0
-                                         
-                                 lp:
-000003 b905                      	out PORTB, count	; Put counter value on PORT B
-000004 9503                      	inc count			; Increment counter
+00000c d007                      		rcall	resetState
+                                 
+                                 loop:	
+00000d 9105                      		lpm		ledsL, Z+						; Load LED LOW value from flash memory
+00000e 9115                      		lpm		ledsH, Z+						; Load LED HIGH value from flash memory
+00000f 9125                      		lpm		timeInt, Z+						; Load time interval value from fash memory
+000010 953a                      		dec		loopCt
+000011 f7d9                      		brne	loop
+000012 d001                      		rcall	resetState							; Infinite loop
+000013 cff9                      		rjmp	loop
+                                 
+                                 resetState:
+000014 e0e0                      		ldi		ZL, LOW(2*pArr)			; Initialize Z pointer
+000015 e0f0                      		ldi		ZH, HIGH(2*pArr)		; to pmem array address
+000016 e038                      		ldi		loopCt, nStates			; Initialize loop count to number of states
 
 
 RESOURCE USE INFORMATION
@@ -1204,39 +1226,39 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 "ATmega328P" register use summary:
-x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
+x  :   0 y  :   0 z  :   3 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:   3 r17:   2 r18:   0 r19:   0 r20:   0 
+r13:   0 r14:   0 r15:   0 r16:   1 r17:   1 r18:   1 r19:   2 r20:   0 
 r21:   0 r22:   0 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
-r29:   0 r30:   0 r31:   0 
-Registers used: 2 out of 35 (5.7%)
+r29:   0 r30:   1 r31:   1 
+Registers used: 7 out of 35 (20.0%)
 
 "ATmega328P" instruction use summary:
 .lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
 andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
 brcc  :   0 brcs  :   0 break :   0 breq  :   0 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :   0 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brne  :   1 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :   0 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :   0 cpse  :   0 dec   :   0 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :   0 inc   :   1 jmp   :   0 
-ld    :   0 ldd   :   0 ldi   :   2 lds   :   0 lpm   :   0 lsl   :   0 
+cpi   :   0 cpse  :   0 dec   :   1 eor   :   0 fmul  :   0 fmuls :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :   0 inc   :   0 jmp   :   0 
+ld    :   0 ldd   :   0 ldi   :   3 lds   :   0 lpm   :   3 lsl   :   0 
 lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :   2 pop   :   0 
-push  :   0 rcall :   0 ret   :   0 reti  :   0 rjmp  :   1 rol   :   0 
+neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :   0 pop   :   0 
+push  :   0 rcall :   2 ret   :   1 reti  :   0 rjmp  :   1 rol   :   0 
 ror   :   0 sbc   :   0 sbci  :   0 sbi   :   0 sbic  :   0 sbis  :   0 
 sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 
 sei   :   0 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
 sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   0 
 sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 4 out of 113 (3.5%)
+Instructions used: 7 out of 113 (6.2%)
 
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x00000c     12      0     12   32768   0.0%
+[.cseg] 0x000000 0x000030     24     24     48   32768   0.1%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 

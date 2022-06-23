@@ -188,17 +188,35 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 */
+		.equ	nStates	= 8			; Number of states
 
-; Define symbolic names for resources used
+		.def	ledsL	= R16		; Define led low register
+		.def	ledsH	= R17		; Define led high register
+		.def	timeInt	= R18		; Define time interval register
+		.def	loopCt	= R19		; Define loop count register
 
-.def count = R16		; Reg 16 will hold counter value
-.def temp = R17			; Reg 17 is used as a temporary register
+pArr:	.db		0x32, 0x92, 0x20, \
+				0x52, 0x92, 0x05, \
+				0x91, 0x91, 0x10, \
+				0x92, 0x92, 0x05, \
+				0x86, 0x32, 0x20, \
+				0x86, 0x52, 0x05, \
+				0x86, 0x86, 0x50, \
+				0x8A, 0x8A, 0x05
 
-ldi temp, 0xFF			; Configure PORTB as output
-out DDRB, temp
-ldi count, 0x00			; Initialize count at 0
-        
-lp:
-	out PORTB, count	; Put counter value on PORT B
-	inc count			; Increment counter
-	rjmp lp				; Repeat (forever)
+		rcall	resetState
+
+loop:	
+		lpm		ledsL, Z+						; Load LED LOW value from flash memory
+		lpm		ledsH, Z+						; Load LED HIGH value from flash memory
+		lpm		timeInt, Z+						; Load time interval value from fash memory
+		dec		loopCt
+		brne	loop
+		rcall	resetState							; Infinite loop
+		rjmp	loop
+
+resetState:
+		ldi		ZL, LOW(2*pArr)			; Initialize Z pointer
+		ldi		ZH, HIGH(2*pArr)		; to pmem array address
+		ldi		loopCt, nStates			; Initialize loop count to number of states
+		ret

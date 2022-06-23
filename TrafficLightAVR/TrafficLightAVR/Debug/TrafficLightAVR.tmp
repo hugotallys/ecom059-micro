@@ -22,6 +22,8 @@
   <FILE>TrafficLightAVR.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <lp><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>201</LINE></lp>
+  <pArr><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>198</LINE></pArr>
+  <resetState><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>218</LINE></resetState>
+  <loop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>209</LINE></loop>
  </LABELS>
 </ASSEMBLER_INFO>

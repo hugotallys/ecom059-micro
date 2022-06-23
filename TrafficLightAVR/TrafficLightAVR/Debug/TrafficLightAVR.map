@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Wed Jun 22 19:39:42 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Wed Jun 22 22:33:52 2022
 
 
 EQU  SIGNATURE_000 0000001e
@@ -695,6 +695,11 @@ EQU  ACIaddr      0000002e
 EQU  TWIaddr      00000030
 EQU  SPMRaddr     00000032
 EQU  INT_VECTORS_SIZE 00000034
-DEF  count        r16
-DEF  temp         r17
-CSEG lp           00000003
+EQU  nStates      00000008
+DEF  ledsL        r16
+DEF  ledsH        r17
+DEF  timeInt      r18
+DEF  loopCt       r19
+CSEG pArr         00000000
+CSEG resetState   00000014
+CSEG loop         0000000d
