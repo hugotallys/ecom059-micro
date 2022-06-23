@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Thu Jun 23 11:12:02 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Thu Jun 23 11:23:07 2022
 
 
 EQU  SIGNATURE_000 0000001e
@@ -704,15 +704,15 @@ DEF  stateTimer   r21
 EQU  clkPin       00000002
 EQU  latchPin     00000001
 EQU  dataPin      00000000
+EQU  PRESCALE     00000004
+EQU  PRESCALE_DIV 00000100
+EQU  WGM          00000004
+EQU  TOP          0000003f
 CSEG reset        00000023
 CSEG OCI1A_Interrupt 00000018
 CSEG skip         0000001f
 CSEG setState     0000004c
 CSEG pArr         00000023
-EQU  PRESCALE     00000004
-EQU  PRESCALE_DIV 00000100
-EQU  WGM          00000004
-EQU  TOP          0000003f
 CSEG resetState   0000004a
 CSEG loop         00000049
 CSEG lowForLoop   00000055

@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Thu Jun 23 11:12:02 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Thu Jun 23 11:23:07 2022
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
@@ -986,7 +986,7 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  ; ***** END OF FILE ******************************************************
                                  
                                  
-                                 State	|         Binary		| Hexadecimal |  Time   |
+                                 State   |         Binary        | Hexadecimal |  Time   |
                                  -----	| ---------------------	| ----------- | ------- |
                                  10000	| 001 100 10 100 100 10	|    32 92    |  20.13  |
                                  20000	| 010 100 10 100 100 10	|    52 92    |  04.22  |
@@ -1009,6 +1009,16 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  .equ clkPin = PINB2
                                  .equ latchPin = PINB1
                                  .equ dataPin = PINB0
+                                 
+                                 #define CLOCK 16.0e6 ;clock speed
+                                 #define DELAY 0.001 ;seconds
+                                 .equ PRESCALE = 0b100 ;/256 prescale
+                                 .equ PRESCALE_DIV = 256
+                                 .equ WGM = 0b0100 ;Waveform generation mode: CTC
+                                 ;you must ensure this value is between 0 and 65535
+                                 .equ TOP = int(0.5 + ((CLOCK/PRESCALE_DIV)*DELAY))
+                                 .if TOP > 65535
+                                 .endif
                                  
                                  .cseg
 000000 940c 0023                 jmp reset
@@ -1053,16 +1063,6 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  
 000033 ef4f                      	ldi temp, 0b11111111        
 000034 b944                      	out DDRB, temp            ;configura PORTB como saí­da
-                                 	
-                                 	#define CLOCK 16.0e6 ;clock speed
-                                 	#define DELAY 0.001 ;seconds
-                                 	.equ PRESCALE = 0b100 ;/256 prescale
-                                 	.equ PRESCALE_DIV = 256
-                                 	.equ WGM = 0b0100 ;Waveform generation mode: CTC
-                                 	;you must ensure this value is between 0 and 65535
-                                 	.equ TOP = int(0.5 + ((CLOCK/PRESCALE_DIV)*DELAY))
-                                 	.if TOP > 65535
-                                 	.endif
                                  
                                  	;On MEGA series, write high byte of 16-bit timer registers first
 000035 e040                      	ldi temp, high(TOP) ;initialize compare value (TOP)

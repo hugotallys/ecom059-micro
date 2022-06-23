@@ -1,16 +1,29 @@
 /*
-
-State	|         Binary		| Hexadecimal |  Time   |
------	| ---------------------	| ----------- | ------- |
-10000	| 001 100 10 100 100 10	|    32 92    |  20.13  |
-20000	| 010 100 10 100 100 10	|    52 92    |  04.22  |
-00001	| 100 100 01 100 100 01	|    91 91    |  12.99  |
-00000	| 100 100 10 100 100 10	|    92 92    |  05.94  |
-01100	| 100 001 10 001 100 10	|    86 32    |  20.25  |
-01200	| 100 001 10 010 100 10	|    86 52    |  03.51  |
-01010	| 100 001 10 100 001 10	|    86 86    |  53.42  |
-02020	| 100 010 10 100 010 10	|    8A 8A    |  03.70  |
-
+* Traffic Light - ATMEL AVR
+*
+* Main File:
+*	trafficLightAVR.asm
+*
+* Authors:
+*	Arquimedes
+*	Hugo
+*	Pamela
+*	Sofia
+* 
+* Project Description :
+*	TODO
+*
+* State |         Binary        | Hexadecimal |  Time   |
+* ----- | --------------------- | ----------- | ------- |
+* 10000	| 001 100 10 100 100 10	|    32 92    |  20.13  |
+* 20000	| 010 100 10 100 100 10	|    52 92    |  04.22  |
+* 00001	| 100 100 01 100 100 01	|    91 91    |  12.99  |
+* 00000	| 100 100 10 100 100 10	|    92 92    |  05.94  |
+* 01100	| 100 001 10 001 100 10	|    86 32    |  20.25  |
+* 01200	| 100 001 10 010 100 10	|    86 52    |  03.51  |
+* 01010	| 100 001 10 100 001 10	|    86 86    |  53.42  |
+* 02020	| 100 010 10 100 010 10	|    8A 8A    |  03.70  |
+*
 */
 
 .def ledsL = R16		; Define led low register
@@ -23,6 +36,17 @@ State	|         Binary		| Hexadecimal |  Time   |
 .equ clkPin = PINB2
 .equ latchPin = PINB1
 .equ dataPin = PINB0
+
+#define CLOCK 16.0e6 ;clock speed
+#define DELAY 0.001 ;seconds
+.equ PRESCALE = 0b100 ;/256 prescale
+.equ PRESCALE_DIV = 256
+.equ WGM = 0b0100 ;Waveform generation mode: CTC
+;you must ensure this value is between 0 and 65535
+.equ TOP = int(0.5 + ((CLOCK/PRESCALE_DIV)*DELAY))
+.if TOP > 65535
+.error "TOP is out of range"
+.endif
 
 .cseg
 jmp reset
@@ -56,40 +80,25 @@ reset:
 			0x8A, 0x8A, 5
 	
 	; Stack initialization
-	ldi	temp, LOW(RAMEND)		; load low byte of RAMEND into r16
-	out	SPL, temp			; store r16 in stack pointer low
-	ldi	temp, HIGH(RAMEND)	; load high byte of RAMEND into r16
-	out	SPH, temp			; store r16 in stack pointer high
+	ldi	temp, LOW(RAMEND)		; load low byte of RAMEND into temp reg
+	out	SPL, temp				; store temp reg in stack pointer low
+	ldi	temp, HIGH(RAMEND)		; load high byte of RAMEND into temp reg
+	out	SPH, temp				; store temp reg in stack pointer high
 
 	ldi temp, 0b11111111        
-	out DDRB, temp            ;configura PORTB como saí­da
-	
-	#define CLOCK 16.0e6 ;clock speed
-	#define DELAY 1.0 ;seconds
-	.equ PRESCALE = 0b100 ;/256 prescale
-	.equ PRESCALE_DIV = 256
-	.equ WGM = 0b0100 ;Waveform generation mode: CTC
-	;you must ensure this value is between 0 and 65535
-	.equ TOP = int(0.5 + ((CLOCK/PRESCALE_DIV)*DELAY))
-	.if TOP > 65535
-	.error "TOP is out of range"
-	.endif
+	out DDRB, temp				; configura PORTB como saí­da
 
-	;On MEGA series, write high byte of 16-bit timer registers first
-	ldi temp, high(TOP) ;initialize compare value (TOP)
+	; On MEGA series, write high byte of 16-bit timer registers first
+	ldi temp, high(TOP) ; initialize compare value (TOP)
 	sts OCR1AH, temp
 	ldi temp, low(TOP)
 	sts OCR1AL, temp
 	ldi temp, ((WGM&0b11) << WGM10) ;lower 2 bits of WGM
 	; WGM&0b11 = 0b0100 & 0b0011 = 0b0000 
 	sts TCCR1A, temp
-	;upper 2 bits of WGM and clock select
+	; upper 2 bits of WGM and clock select
 	ldi temp, ((WGM>> 2) << WGM12)|(PRESCALE << CS10)
-	; WGM >> 2 = 0b0100 >> 2 = 0b0001
-	; (WGM >> 2) << WGM12 = (0b0001 << 3) = 0b0001000
-	; (PRESCALE << CS10) = 0b100 << 0 = 0b100
-	; 0b0001000 | 0b100 = 0b0001100
-	sts TCCR1B, temp ;start counter
+	sts TCCR1B, temp ; start counter
 
 	lds r16, TIMSK1
 	sbr r16, 1 <<OCIE1A
@@ -98,7 +107,7 @@ reset:
 	rcall resetState
 	rcall setState
 
-	sei
+	sei	; Enable global interrupts
 
 	loop:
 	  ;rcall setState							; Infinite loop
