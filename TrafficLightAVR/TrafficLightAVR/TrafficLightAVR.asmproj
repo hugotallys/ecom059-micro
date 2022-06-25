@@ -15,7 +15,7 @@
     <Name>TrafficLightAVR</Name>
     <RootNamespace>TrafficLightAVR</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
-    <EntryFile>$(MSBuildProjectDirectory)\main.asm</EntryFile>
+    <EntryFile>$(MSBuildProjectDirectory)\trafficLightAVR.asm</EntryFile>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
     <CacheFlash>true</CacheFlash>
@@ -80,7 +80,10 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="main.asm">
+    <Compile Include="timer0Interrupt.asm">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="trafficLightAVR.asm">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="mainC.asm">

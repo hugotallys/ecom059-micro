@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm Thu Jun 23 11:23:07 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Fri Jun 24 20:51:08 2022
 
 
 EQU  SIGNATURE_000 0000001e
@@ -697,27 +697,53 @@ EQU  SPMRaddr     00000032
 EQU  INT_VECTORS_SIZE 00000034
 DEF  ledsL        r16
 DEF  ledsH        r17
-DEF  timeInt      r18
-DEF  currState    r19
-DEF  temp         r20
-DEF  stateTimer   r21
+DEF  decDigit     r18
+DEF  uniDigit     r19
+DEF  decTimer     r20
+DEF  uniTimer     r21
+DEF  currState    r22
+DEF  temp         r23
+DEF  currDisplay  r24
 EQU  clkPin       00000002
 EQU  latchPin     00000001
 EQU  dataPin      00000000
+EQU  uniPin       00000007
+EQU  decPin       00000006
+EQU  input1Pin    00000002
+EQU  input2Pin    00000003
+EQU  input3Pin    00000004
+EQU  input4Pin    00000005
 EQU  PRESCALE     00000004
 EQU  PRESCALE_DIV 00000100
 EQU  WGM          00000004
 EQU  TOP          0000003f
-CSEG reset        00000023
-CSEG OCI1A_Interrupt 00000018
-CSEG skip         0000001f
-CSEG setState     0000004c
-CSEG pArr         00000023
-CSEG resetState   0000004a
-CSEG loop         00000049
-CSEG lowForLoop   00000055
-CSEG endLowForLoop 00000061
-CSEG passLow      0000005c
-CSEG highForLoop  00000062
-CSEG endHighForLoop 0000006e
-CSEG passHigh     00000069
+CSEG reset        00000047
+CSEG OCI1A_Interrupt 00000022
+CSEG ISR_TOV0     00000033
+CSEG skip1        0000002a
+CSEG skip2        0000002f
+CSEG setState     000000c6
+CSEG display1     0000003e
+CSEG setDigit     0000007b
+CSEG endInte      00000043
+CSEG pArr         00000047
+CSEG resetState   000000c4
+CSEG loop         0000007a
+CSEG case0        00000090
+CSEG case1        00000095
+CSEG case2        0000009a
+CSEG case3        0000009f
+CSEG case4        000000a4
+CSEG case5        000000a9
+CSEG case6        000000ae
+CSEG case7        000000b3
+CSEG case8        000000b8
+CSEG case9        000000bd
+CSEG casedefault  000000c2
+CSEG end_switch   000000c3
+CSEG lowForLoop   000000d1
+CSEG endLowForLoop 000000dd
+CSEG passLow      000000d8
+CSEG highForLoop  000000de
+CSEG endHighForLoop 000000ea
+CSEG passHigh     000000e5

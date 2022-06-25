@@ -1,3 +1,18 @@
+/*
+
+State  |         Binary    | Hexadecimal |  Time   |
+----- | --------------------- | ----------- | ------- |
+10000 | 001 100 10 100 100 10 |    32 92    |  20.13  |
+20000 | 010 100 10 100 100 10 |    52 92    |  04.22  |
+00001 | 100 100 01 100 100 01 |    91 91    |  12.99  |
+00000 | 100 100 10 100 100 10 |    92 92    |  05.94  |
+01100 | 100 001 10 001 100 10 |    86 32    |  20.25  |
+01200 | 100 001 10 010 100 10 |    86 52    |  03.51  |
+01010 | 100 001 10 100 001 10 |    86 86    |  53.42  |
+02020 | 100 010 10 100 010 10 |    8A 8A    |  03.70  |
+
+*/
+
 #define clk 10
 #define latch 9
 #define data 8
@@ -14,13 +29,13 @@
 const uint16_t t1_load = 0;
 const uint16_t t1_comp = 62500;
 
-int timer = 0;
-int uni;
-int dec;
+int uni = 1;
+int dec = 0;
 
 int current = 0;
 int states[]{0x3292, 0x5292, 0x9191, 0x9292, 0x8632, 0x8652, 0x8686, 0x8A8A};
-int timers[]{20, 5, 10, 5, 20, 5, 50, 5};
+int timers[]{1, 6, 1, 6, 1, 6, 1, 6};
+int timers2[]{2, 0, 1, 0, 2, 0, 5, 0};
 
 void setup() {
   
@@ -61,17 +76,7 @@ void setup() {
   setState(states[current]);
 }
 
-void number(int n, int dig){
-  if(dig==0){
-    digitalWrite(DEC, HIGH);
-    digitalWrite(UNI, LOW);
-  }
-  
-  if(dig==1){
-    digitalWrite(DEC, LOW);
-    digitalWrite(UNI, HIGH);
-  }
-  
+void number(int n){  
   if(n==0){    
     digitalWrite(I1, LOW);
     digitalWrite(I2, LOW);
@@ -139,7 +144,7 @@ void setState(int state)
   int bit = 0;
   for (int i = 0; i < 16; i += 1)
   {
-	bit = (state >> i) & 1;
+  bit = (state >> i) & 1;
     if (bit == 0)
     {
       digitalWrite(data, LOW);
@@ -147,7 +152,7 @@ void setState(int state)
       digitalWrite(data, HIGH);
     }
     digitalWrite(clk, HIGH);
-  	digitalWrite(clk, LOW);
+    digitalWrite(clk, LOW);
   }
   digitalWrite(latch, LOW);
   digitalWrite(latch, HIGH);
@@ -155,20 +160,31 @@ void setState(int state)
 }
 
 void loop() {
-  uni = timer % 10;
-  dec = timer / 10;
   
-  number(dec, 0);
+  digitalWrite(DEC, HIGH);
+  digitalWrite(UNI, LOW);
+  number(dec);
   delay(50);
-  number(uni, 1);
+  
+  digitalWrite(DEC, LOW);
+  digitalWrite(UNI, HIGH);
+  number(uni);
   delay(50);
+  
 }
 
 ISR(TIMER1_COMPA_vect) {
-  timer++;
-  if (timer == timers[current] + 1)
+  uni++;
+  
+  if (uni == 10) {
+  	uni = 0;
+    dec++;
+  }
+  
+  if (dec == timers2[current] && uni == timers[current])
   {
-    timer = 1;
+    uni = 1;
+    dec = 0;
     current = (current + 1) % 8;
     setState(states[current]);
   }

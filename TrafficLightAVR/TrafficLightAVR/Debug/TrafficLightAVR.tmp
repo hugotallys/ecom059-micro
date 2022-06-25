@@ -7,7 +7,7 @@
   <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
   <DIR></DIR>
  </INCLUDE_PATH>
- <SOURCE_FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</SOURCE_FILE>
+ <SOURCE_FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</SOURCE_FILE>
  <INCLUDED_FILES>
   <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc</FILE>
  </INCLUDED_FILES>
@@ -22,18 +22,35 @@
   <FILE>TrafficLightAVR.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <reset><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>59</LINE></reset>
-  <OCI1A_Interrupt><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>44</LINE></OCI1A_Interrupt>
-  <skip><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>53</LINE></skip>
-  <setState><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>111</LINE></setState>
-  <pArr><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>60</LINE></pArr>
-  <resetState><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>107</LINE></resetState>
-  <loop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>103</LINE></loop>
-  <lowForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>123</LINE></lowForLoop>
-  <endLowForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>137</LINE></endLowForLoop>
-  <passLow><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>131</LINE></passLow>
-  <highForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>139</LINE></highForLoop>
-  <endHighForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>153</LINE></endHighForLoop>
-  <passHigh><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\main.asm</FILE><LINE>147</LINE></passHigh>
+  <reset><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>129</LINE></reset>
+  <OCI1A_Interrupt><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>73</LINE></OCI1A_Interrupt>
+  <ISR_TOV0><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>98</LINE></ISR_TOV0>
+  <skip1><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>86</LINE></skip1>
+  <skip2><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>92</LINE></skip2>
+  <setState><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>277</LINE></setState>
+  <display1><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>114</LINE></display1>
+  <setDigit><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>184</LINE></setDigit>
+  <endInte><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>123</LINE></endInte>
+  <pArr><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>130</LINE></pArr>
+  <resetState><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>273</LINE></resetState>
+  <loop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>180</LINE></loop>
+  <case0><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>208</LINE></case0>
+  <case1><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>214</LINE></case1>
+  <case2><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>220</LINE></case2>
+  <case3><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>226</LINE></case3>
+  <case4><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>232</LINE></case4>
+  <case5><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>238</LINE></case5>
+  <case6><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>244</LINE></case6>
+  <case7><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>250</LINE></case7>
+  <case8><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>256</LINE></case8>
+  <case9><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>262</LINE></case9>
+  <casedefault><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>268</LINE></casedefault>
+  <end_switch><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>270</LINE></end_switch>
+  <lowForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>291</LINE></lowForLoop>
+  <endLowForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>305</LINE></endLowForLoop>
+  <passLow><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>299</LINE></passLow>
+  <highForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>307</LINE></highForLoop>
+  <endHighForLoop><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>321</LINE></endHighForLoop>
+  <passHigh><FILE>C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm</FILE><LINE>315</LINE></passHigh>
  </LABELS>
 </ASSEMBLER_INFO>
