@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Sun Jun 26 23:52:07 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Mon Jun 27 00:46:43 2022
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
@@ -1310,196 +1310,203 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
 0000ce 9508                        ret
                                  
                                  setState:
-0000cf efea                      	ldi	ZL, LOW(2*pArr)			; Initialize Z pointer
-0000d0 e0f1                      	ldi ZH, HIGH(2*pArr)		; to pmem array address
-0000d1 0fe6                      	add ZL, currState
-0000d2 9105                      	lpm ledsL, Z+						; Load LED LOW value from flash memory
-0000d3 9115                      	lpm ledsH, Z+						; Load LED HIGH value from flash memory
-0000d4 9125                      	lpm decDigit, Z+						; Load time interval value from fash memory
-0000d5 9135                      	lpm uniDigit, Z+
-0000d6 e040                      	ldi decTimer, 0x00
-0000d7 e050                      	ldi uniTimer, 0x00
-0000d8 5f6c                      	subi currState, -4
+0000cf e0e2                      	ldi	ZL, LOW(2*pArr)			; Initialize Z pointer
+0000d0 e0f2                      	ldi ZH, HIGH(2*pArr)		; to pmem array address
+                                 	
+0000d1 e080                      	ldi temp, 0
+0000d2 0fe6                      	add ZL, currState
+0000d3 1ff8                      	adc ZH, temp
+                                 	
+0000d4 9105                      	lpm ledsL, Z+						; Load LED LOW value from flash memory
+0000d5 9115                      	lpm ledsH, Z+						; Load LED HIGH value from flash memory
+0000d6 9125                      	lpm decDigit, Z+						; Load time interval value from fash memory
+0000d7 9135                      	lpm uniDigit, Z+
+0000d8 e040                      	ldi decTimer, 0x00
+0000d9 e050                      	ldi uniTimer, 0x00
+0000da 5f6c                      	subi currState, -4
                                    
                                  	; For loop
-0000d9 e081                      	ldi temp, 1
+0000db e081                      	ldi temp, 1
                                  	lowForLoop:
-0000da 3880                      		cpi	temp, 0b10000000
-0000db f051                      		breq endLowForLoop
-0000dc 938f                      		push temp
-0000dd 2380                      		and temp, ledsL
-0000de 918f                      		pop temp
-0000df f009                      		breq passLow
-0000e0 9a28                      		sbi PORTB, dataPin
+0000dc 3880                      		cpi	temp, 0b10000000
+0000dd f051                      		breq endLowForLoop
+0000de 938f                      		push temp
+0000df 2380                      		and temp, ledsL
+0000e0 918f                      		pop temp
+0000e1 f009                      		breq passLow
+0000e2 9a28                      		sbi PORTB, dataPin
                                  	passLow:
-0000e1 9a2a                      		sbi	PORTB, clkPin
-0000e2 982a                      		cbi	PORTB, clkPin
-0000e3 9828                      		cbi PORTB, dataPin
-0000e4 0f88                      		lsl temp
-0000e5 cff4                      		rjmp lowForLoop
+0000e3 9a2a                      		sbi	PORTB, clkPin
+0000e4 982a                      		cbi	PORTB, clkPin
+0000e5 9828                      		cbi PORTB, dataPin
+0000e6 0f88                      		lsl temp
+0000e7 cff4                      		rjmp lowForLoop
                                  	endLowForLoop:
-0000e6 e081                      		ldi temp, 1
+0000e8 e081                      		ldi temp, 1
                                  	highForLoop:
-0000e7 3880                      		cpi	temp, 0b10000000
-0000e8 f051                      		breq endHighForLoop
-0000e9 938f                      		push temp
-0000ea 2381                      		and temp, ledsH
-0000eb 918f                      		pop temp
-0000ec f009                      		breq passHigh
-0000ed 9a28                      		sbi PORTB, dataPin
+0000e9 3880                      		cpi	temp, 0b10000000
+0000ea f051                      		breq endHighForLoop
+0000eb 938f                      		push temp
+0000ec 2381                      		and temp, ledsH
+0000ed 918f                      		pop temp
+0000ee f009                      		breq passHigh
+0000ef 9a28                      		sbi PORTB, dataPin
                                  	passHigh:
-0000ee 9a2a                      		sbi	PORTB, clkPin
-0000ef 982a                      		cbi	PORTB, clkPin
-0000f0 9828                      		cbi PORTB, dataPin
-0000f1 0f88                      		lsl temp
-0000f2 cff4                      		rjmp highForLoop
+0000f0 9a2a                      		sbi	PORTB, clkPin
+0000f1 982a                      		cbi	PORTB, clkPin
+0000f2 9828                      		cbi PORTB, dataPin
+0000f3 0f88                      		lsl temp
+0000f4 cff4                      		rjmp highForLoop
                                  	endHighForLoop:
                                  	; end For loop
                                  
                                  	//cbi	PORTB, latchPin
-0000f3 9a29                      	sbi	PORTB, latchPin
-0000f4 9829                      	cbi	PORTB, latchPin
+0000f5 9a29                      	sbi	PORTB, latchPin
+0000f6 9829                      	cbi	PORTB, latchPin
                                  
-0000f5 e1ea                      	ldi	ZL,LOW(2*myMsg)			; load Z pointer with
-0000f6 e0f2                      	ldi	ZH,HIGH(2*myMsg)		; myStr address
+0000f7 e2e2                      	ldi	ZL,LOW(2*myMsg)			; load Z pointer with
+0000f8 e0f2                      	ldi	ZH,HIGH(2*myMsg)		; myStr address
                                  	
-0000f7 0fe7                      	add ZL, currMsg
-0000f8 5e74                      	subi currMsg, -28
+0000f9 e080                      	ldi temp, 0
+0000fa 0fe7                      	add ZL, currMsg
+0000fb 1ff8                      	adc ZH, temp
+                                 
+0000fc 5e74                      	subi currMsg, -28
                                  	
-0000f9 df7a                      	rcall puts				; transmit string
+0000fd df76                      	rcall puts				; transmit string
                                  
-0000fa 316c                      	cpi		currState, 28
-0000fb f281                      	breq	resetState
-0000fc 9508                      	ret
+0000fe 3260                      	cpi		currState, 32
+0000ff f261                      	breq	resetState
+000100 9508                      	ret
                                  
-0000fd 9232                      pArr:	.db	0x32, 0x92, 2, 1, \
-0000fe 0102
-0000ff 9252                      				0x52, 0x92, 0, 6, \
-000100 0600
-000101 9191                      				0x91, 0x91, 1, 1, \
-000102 0101
-000103 9292                      				0x92, 0x92, 0, 6, \
+000101 9232                      pArr:	.db	0x32, 0x92, 2, 1, \
+000102 0102
+000103 9252                      				0x52, 0x92, 0, 6, \
 000104 0600
-000105 3286                      				0x86, 0x32, 2, 1, \
-000106 0102
-000107 5286                      				0x86, 0x52, 0, 6, \
+000105 9191                      				0x91, 0x91, 1, 1, \
+000106 0101
+000107 9292                      				0x92, 0x92, 0, 6, \
 000108 0600
-000109 8686                      				0x86, 0x86, 5, 1, \
-00010a 0105
-00010b 8a8a
-00010c 0600                      				0x8A, 0x8A, 0, 6
+000109 3286                      				0x86, 0x32, 2, 1, \
+00010a 0102
+00010b 5286                      				0x86, 0x52, 0, 6, \
+00010c 0600
+00010d 8686                      				0x86, 0x86, 5, 1, \
+00010e 0105
+00010f 8a8a
+000110 0600                      				0x8A, 0x8A, 0, 6
                                  
-00010d 207c
-00010e 535b
-00010f 6d65
-000110 7061
-000111 6f68
-000112 6572
-000113 5320
-000114 6174
-000115 6574
-000116 205d
-000117 3031
-000118 3030
-000119 2030                      myMsg:	.db "| [Semaphore State] 10000 |", 0x00, \
-00011a 007c
-00011b 207c
-00011c 535b
-00011d 6d65
-00011e 7061
-00011f 6f68
-000120 6572
-000121 5320
-000122 6174
-000123 6574
-000124 205d
-000125 3032
-000126 3030
-000127 2030                      			"| [Semaphore State] 20000 |", 0x00, \
-000128 007c
-000129 207c
-00012a 535b
-00012b 6d65
-00012c 7061
-00012d 6f68
-00012e 6572
-00012f 5320
-000130 6174
-000131 6574
-000132 205d
-000133 3030
-000134 3030
-000135 2031                      			"| [Semaphore State] 00001 |", 0x00, \
-000136 007c
-000137 207c
-000138 535b
-000139 6d65
-00013a 7061
-00013b 6f68
-00013c 6572
-00013d 5320
-00013e 6174
-00013f 6574
-000140 205d
-000141 3030
-000142 3030
-000143 2030                      			"| [Semaphore State] 00000 |", 0x00, \
-000144 007c
-000145 207c
-000146 535b
-000147 6d65
-000148 7061
-000149 6f68
-00014a 6572
-00014b 5320
-00014c 6174
-00014d 6574
-00014e 205d
-00014f 3130
-000150 3031
-000151 2030                      			"| [Semaphore State] 01100 |", 0x00, \
-000152 007c
-000153 207c
-000154 535b
-000155 6d65
-000156 7061
-000157 6f68
-000158 6572
-000159 5320
-00015a 6174
-00015b 6574
-00015c 205d
-00015d 3130
-00015e 3032
-00015f 2030                      			"| [Semaphore State] 01200 |", 0x00, \
-000160 007c
-000161 207c
-000162 535b
-000163 6d65
-000164 7061
-000165 6f68
-000166 6572
-000167 5320
-000168 6174
-000169 6574
-00016a 205d
-00016b 3130
-00016c 3130
-00016d 2030                      			"| [Semaphore State] 01010 |", 0x00, \
-00016e 007c
-00016f 207c
-000170 535b
-000171 6d65
-000172 7061
-000173 6f68
-000174 6572
-000175 5320
-000176 6174
-000177 6574
-000178 205d
-000179 3230
-00017a 3230
-00017b 2030
+000111 207c
+000112 535b
+000113 6d65
+000114 7061
+000115 6f68
+000116 6572
+000117 5320
+000118 6174
+000119 6574
+00011a 205d
+00011b 3031
+00011c 3030
+00011d 2030                      myMsg:	.db "| [Semaphore State] 10000 |", 0x00, \
+00011e 007c
+00011f 207c
+000120 535b
+000121 6d65
+000122 7061
+000123 6f68
+000124 6572
+000125 5320
+000126 6174
+000127 6574
+000128 205d
+000129 3032
+00012a 3030
+00012b 2030                      			"| [Semaphore State] 20000 |", 0x00, \
+00012c 007c
+00012d 207c
+00012e 535b
+00012f 6d65
+000130 7061
+000131 6f68
+000132 6572
+000133 5320
+000134 6174
+000135 6574
+000136 205d
+000137 3030
+000138 3030
+000139 2031                      			"| [Semaphore State] 00001 |", 0x00, \
+00013a 007c
+00013b 207c
+00013c 535b
+00013d 6d65
+00013e 7061
+00013f 6f68
+000140 6572
+000141 5320
+000142 6174
+000143 6574
+000144 205d
+000145 3030
+000146 3030
+000147 2030                      			"| [Semaphore State] 00000 |", 0x00, \
+000148 007c
+000149 207c
+00014a 535b
+00014b 6d65
+00014c 7061
+00014d 6f68
+00014e 6572
+00014f 5320
+000150 6174
+000151 6574
+000152 205d
+000153 3130
+000154 3031
+000155 2030                      			"| [Semaphore State] 01100 |", 0x00, \
+000156 007c
+000157 207c
+000158 535b
+000159 6d65
+00015a 7061
+00015b 6f68
+00015c 6572
+00015d 5320
+00015e 6174
+00015f 6574
+000160 205d
+000161 3130
+000162 3032
+000163 2030                      			"| [Semaphore State] 01200 |", 0x00, \
+000164 007c
+000165 207c
+000166 535b
+000167 6d65
+000168 7061
+000169 6f68
+00016a 6572
+00016b 5320
+00016c 6174
+00016d 6574
+00016e 205d
+00016f 3130
+000170 3130
+000171 2030                      			"| [Semaphore State] 01010 |", 0x00, \
+000172 007c
+000173 207c
+000174 535b
+000175 6d65
+000176 7061
+000177 6f68
+000178 6572
+000179 5320
+00017a 6174
+00017b 6574
+00017c 205d
+00017d 3230
+00017e 3230
+00017f 2030
 
 
 RESOURCE USE INFORMATION
@@ -1520,12 +1527,12 @@ counted separately from r26..r31 here.
 x  :   0 y  :   0 z  :   5 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
 r13:   0 r14:   0 r15:   0 r16:  32 r17:   8 r18:   2 r19:   2 r20:   4 
-r21:   6 r22:   4 r23:   3 r24:  39 r25:   4 r26:   0 r27:   0 r28:   0 
-r29:   0 r30:   4 r31:   2 
+r21:   6 r22:   4 r23:   3 r24:  43 r25:   4 r26:   0 r27:   0 r28:   0 
+r29:   0 r30:   4 r31:   4 
 Registers used: 13 out of 35 (37.1%)
 
 "ATmega328P" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   2 adiw  :   0 and   :   2 
+.lds  :   0 .sts  :   0 adc   :   2 add   :   2 adiw  :   0 and   :   2 
 andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
 brcc  :   0 brcs  :   0 break :   0 breq  :  16 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
@@ -1535,7 +1542,7 @@ clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   2 cpc   :   0 
 cpi   :  16 cpse  :   0 dec   :   1 eor   :   0 fmul  :   0 fmuls :   0 
 fmulsu:   0 icall :   0 ijmp  :   0 in    :   2 inc   :   3 jmp   :   3 
-ld    :   0 ldd   :   0 ldi   :  25 lds   :   2 lpm   :   5 lsl   :   2 
+ld    :   0 ldd   :   0 ldi   :  27 lds   :   2 lpm   :   5 lsl   :   2 
 lsr   :   0 mov   :   2 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
 neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :   8 pop   :   8 
 push  :   8 rcall :   6 ret   :   5 reti  :   2 rjmp  :  17 rol   :   0 
@@ -1544,12 +1551,12 @@ sbiw  :   0 sbr   :   1 sbrc  :   0 sbrs  :   1 sec   :   0 seh   :   0
 sei   :   1 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
 sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :  10 
 sub   :   0 subi  :   2 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 29 out of 113 (25.7%)
+Instructions used: 30 out of 113 (26.5%)
 
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0002fa    450    256    706   32768   2.2%
+[.cseg] 0x000000 0x000302    458    256    714   32768   2.2%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 

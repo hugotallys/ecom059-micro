@@ -327,7 +327,11 @@ resetState:
 setState:
 	ldi	ZL, LOW(2*pArr)			; Initialize Z pointer
 	ldi ZH, HIGH(2*pArr)		; to pmem array address
+	
+	ldi temp, 0
 	add ZL, currState
+	adc ZH, temp
+	
 	lpm ledsL, Z+						; Load LED LOW value from flash memory
 	lpm ledsH, Z+						; Load LED HIGH value from flash memory
 	lpm decDigit, Z+						; Load time interval value from fash memory
@@ -378,12 +382,15 @@ setState:
 	ldi	ZL,LOW(2*myMsg)			; load Z pointer with
 	ldi	ZH,HIGH(2*myMsg)		; myStr address
 	
+	ldi temp, 0
 	add ZL, currMsg
+	adc ZH, temp
+
 	subi currMsg, -28
 	
 	rcall puts				; transmit string
 
-	cpi		currState, 28
+	cpi		currState, 32
 	breq	resetState
 	ret
 
