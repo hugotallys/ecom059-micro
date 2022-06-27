@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Mon Jun 27 00:46:43 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Mon Jun 27 14:13:57 2022
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
@@ -1326,41 +1326,40 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
 0000da 5f6c                      	subi currState, -4
                                    
                                  	; For loop
-0000db e081                      	ldi temp, 1
-                                 	lowForLoop:
-0000dc 3880                      		cpi	temp, 0b10000000
-0000dd f051                      		breq endLowForLoop
+0000db e081                      	ldi temp, 1		
+                                 	highForLoop:
+0000dc 3080                      		cpi	temp, 0b00000000
+0000dd f051                      		breq endHighForLoop
 0000de 938f                      		push temp
-0000df 2380                      		and temp, ledsL
+0000df 2381                      		and temp, ledsH
 0000e0 918f                      		pop temp
-0000e1 f009                      		breq passLow
+0000e1 f009                      		breq highPass
 0000e2 9a28                      		sbi PORTB, dataPin
-                                 	passLow:
+                                 	highPass:
 0000e3 9a2a                      		sbi	PORTB, clkPin
 0000e4 982a                      		cbi	PORTB, clkPin
 0000e5 9828                      		cbi PORTB, dataPin
 0000e6 0f88                      		lsl temp
-0000e7 cff4                      		rjmp lowForLoop
-                                 	endLowForLoop:
+0000e7 cff4                      		rjmp highForLoop
+                                 	endHighForLoop:
 0000e8 e081                      		ldi temp, 1
-                                 	highForLoop:
-0000e9 3880                      		cpi	temp, 0b10000000
-0000ea f051                      		breq endHighForLoop
+                                 	lowForLoop:
+0000e9 3080                      		cpi	temp, 0b00000000
+0000ea f051                      		breq endLowForLoop
 0000eb 938f                      		push temp
-0000ec 2381                      		and temp, ledsH
+0000ec 2380                      		and temp, ledsL
 0000ed 918f                      		pop temp
-0000ee f009                      		breq passHigh
+0000ee f009                      		breq lowPass
 0000ef 9a28                      		sbi PORTB, dataPin
-                                 	passHigh:
+                                 	lowPass:
 0000f0 9a2a                      		sbi	PORTB, clkPin
 0000f1 982a                      		cbi	PORTB, clkPin
 0000f2 9828                      		cbi PORTB, dataPin
 0000f3 0f88                      		lsl temp
-0000f4 cff4                      		rjmp highForLoop
-                                 	endHighForLoop:
+0000f4 cff4                      		rjmp lowForLoop
+                                 	endLowForLoop:
                                  	; end For loop
                                  
-                                 	//cbi	PORTB, latchPin
 0000f5 9a29                      	sbi	PORTB, latchPin
 0000f6 9829                      	cbi	PORTB, latchPin
                                  

@@ -341,41 +341,40 @@ setState:
 	subi currState, -4
   
 	; For loop
-	ldi temp, 1
-	lowForLoop:
-		cpi	temp, 0b10000000
-		breq endLowForLoop
-		push temp
-		and temp, ledsL
-		pop temp
-		breq passLow
-		sbi PORTB, dataPin
-	passLow:
-		sbi	PORTB, clkPin
-		cbi	PORTB, clkPin
-		cbi PORTB, dataPin
-		lsl temp
-		rjmp lowForLoop
-	endLowForLoop:
-		ldi temp, 1
+	ldi temp, 1		
 	highForLoop:
-		cpi	temp, 0b10000000
+		cpi	temp, 0b00000000
 		breq endHighForLoop
 		push temp
 		and temp, ledsH
 		pop temp
-		breq passHigh
+		breq highPass
 		sbi PORTB, dataPin
-	passHigh:
+	highPass:
 		sbi	PORTB, clkPin
 		cbi	PORTB, clkPin
 		cbi PORTB, dataPin
 		lsl temp
 		rjmp highForLoop
 	endHighForLoop:
+		ldi temp, 1
+	lowForLoop:
+		cpi	temp, 0b00000000
+		breq endLowForLoop
+		push temp
+		and temp, ledsL
+		pop temp
+		breq lowPass
+		sbi PORTB, dataPin
+	lowPass:
+		sbi	PORTB, clkPin
+		cbi	PORTB, clkPin
+		cbi PORTB, dataPin
+		lsl temp
+		rjmp lowForLoop
+	endLowForLoop:
 	; end For loop
 
-	//cbi	PORTB, latchPin
 	sbi	PORTB, latchPin
 	cbi	PORTB, latchPin
 

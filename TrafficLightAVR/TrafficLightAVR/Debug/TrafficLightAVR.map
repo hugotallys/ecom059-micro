@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Mon Jun 27 00:46:43 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Mon Jun 27 14:13:57 2022
 
 
 EQU  SIGNATURE_000 0000001e
@@ -748,10 +748,10 @@ CSEG case9        000000c5
 CSEG casedefault  000000ca
 CSEG end_switch   000000cb
 CSEG pArr         00000101
-CSEG lowForLoop   000000dc
-CSEG endLowForLoop 000000e8
-CSEG passLow      000000e3
-CSEG highForLoop  000000e9
-CSEG endHighForLoop 000000f5
-CSEG passHigh     000000f0
+CSEG highForLoop  000000dc
+CSEG endHighForLoop 000000e8
+CSEG highPass     000000e3
+CSEG lowForLoop   000000e9
+CSEG endLowForLoop 000000f5
+CSEG lowPass      000000f0
 CSEG myMsg        00000111
