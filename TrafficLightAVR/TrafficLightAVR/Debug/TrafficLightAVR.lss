@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Fri Jun 24 20:51:08 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Sun Jun 26 23:52:07 2022
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
@@ -1022,15 +1022,17 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  .def uniTimer = R21
                                  
                                  .def currState = R22		; Define loop count register
-                                 .def temp = R23
-                                 .def currDisplay = R24
+                                 .def currMsg	= R23
+                                 .def temp = R24
+                                 .def currDisplay = R25
                                  
                                  .equ clkPin = PINB2
                                  .equ latchPin = PINB1
                                  .equ dataPin = PINB0
                                  
-                                 .equ uniPin = PIND7
-                                 .equ decPin = PIND6
+                                 .equ uniPin = PIND6
+                                 .equ decPin = PIND7
+                                 
                                  
                                  .equ input1Pin = PIND2
                                  .equ input2Pin = PIND3
@@ -1038,7 +1040,7 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  .equ input4Pin = PIND5
                                  
                                  #define CLOCK 16.0e6 ;clock speed
-                                 #define DELAY 0.001 ;seconds
+                                 #define DELAY 1 ;seconds
                                  .equ PRESCALE = 0b100 ;/256 prescale
                                  .equ PRESCALE_DIV = 256
                                  .equ WGM = 0b0100 ;Waveform generation mode: CTC
@@ -1073,7 +1075,7 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
 00002b f419                      		brne skip2
 00002c 1742                      		cp	decTimer, decDigit
 00002d f409                      		brne skip2
-00002e d097                      		rcall setState
+00002e d0a0                      		rcall setState
                                  	skip2:
 00002f 910f                      		pop R16
 000030 bf0f                      		out SREG, R16
@@ -1085,25 +1087,25 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
 000034 b70f                      	in r16,SREG
 000035 930f                      	push r16
                                  	
-000036 3080                      	cpi currDisplay, 0
+000036 3090                      	cpi currDisplay, 0
 000037 f431                      	brne display1
                                  
-000038 9a5e                      	sbi PORTD, decPin
-000039 985f                      	cbi PORTD, uniPin
+000038 9a5f                      	sbi PORTD, decPin
+000039 985e                      	cbi PORTD, uniPin
                                  
-00003a 2f74                      	mov temp, decTimer
-00003b d03f                      	rcall setDigit
-00003c 9583                      	inc currDisplay
+00003a 2f84                      	mov temp, decTimer
+00003b d047                      	rcall setDigit
+00003c 9593                      	inc currDisplay
 00003d c005                      	rjmp endInte
                                  
                                  	display1:
                                  
-00003e 9a5f                      	sbi PORTD, uniPin
-00003f 985e                      	cbi PORTD, decPin
+00003e 9a5e                      	sbi PORTD, uniPin
+00003f 985f                      	cbi PORTD, decPin
                                  
-000040 2f75                      	mov temp, uniTimer
-000041 d039                      	rcall setDigit
-000042 958a                      	dec currDisplay
+000040 2f85                      	mov temp, uniTimer
+000041 d041                      	rcall setDigit
+000042 959a                      	dec currDisplay
                                  
                                  	endInte:
 000043 910f                      	pop r16
@@ -1112,214 +1114,392 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
 000046 9518                      	reti
                                  
                                  reset:
-000047 9232                      	pArr:	.db	0x32, 0x92, 2, 1, \
-000048 0102
-000049 9252                      				0x52, 0x92, 0, 6, \
-00004a 0600
-00004b 9191                      				0x91, 0x91, 1, 1, \
-00004c 0101
-00004d 9292                      				0x92, 0x92, 0, 6, \
-00004e 0600
-00004f 3286                      				0x86, 0x32, 2, 1, \
-000050 0102
-000051 5286                      				0x86, 0x52, 0, 6, \
-000052 0600
-000053 8686                      				0x86, 0x86, 5, 1, \
-000054 0105
-000055 8a8a
-000056 0600                      				0x8A, 0x8A, 0, 6
-                                 	
                                  	; Stack initialization
-000057 ef7f                      	ldi	temp, LOW(RAMEND)		; load low byte of RAMEND into temp reg
-000058 bf7d                      	out	SPL, temp				; store temp reg in stack pointer low
-000059 e078                      	ldi	temp, HIGH(RAMEND)		; load high byte of RAMEND into temp reg
-00005a bf7e                      	out	SPH, temp				; store temp reg in stack pointer high
+000047 ef8f                      	ldi	temp, LOW(RAMEND)		; load low byte of RAMEND into temp reg
+000048 bf8d                      	out	SPL, temp				; store temp reg in stack pointer low
+000049 e088                      	ldi	temp, HIGH(RAMEND)		; load high byte of RAMEND into temp reg
+00004a bf8e                      	out	SPH, temp				; store temp reg in stack pointer high
                                  
-00005b ef7f                      	ldi temp, 0b11111111        
-00005c b974                      	out DDRB, temp				; configura PORTB como saí­da
-00005d b97a                      	out DDRD, temp				; configura PORTD como saída
+00004b ef8f                      	ldi temp, 0b11111111        
+00004c b984                      	out DDRB, temp				; configura PORTB como saí­da
+00004d b98a                      	out DDRD, temp				; configura PORTD como saída
                                  
                                  	; On MEGA series, write high byte of 16-bit timer registers first
-00005e e070                      	ldi temp, high(TOP) ; initialize compare value (TOP)
-00005f 9370 0089                 	sts OCR1AH, temp
-000061 e37f                      	ldi temp, low(TOP)
-000062 9370 0088                 	sts OCR1AL, temp
-000064 e070                      	ldi temp, ((WGM&0b11) << WGM10) ;lower 2 bits of WGM
+00004e ef84                      	ldi temp, high(TOP) ; initialize compare value (TOP)
+00004f 9380 0089                 	sts OCR1AH, temp
+000051 e284                      	ldi temp, low(TOP)
+000052 9380 0088                 	sts OCR1AL, temp
+000054 e080                      	ldi temp, ((WGM&0b11) << WGM10) ;lower 2 bits of WGM
                                  	; WGM&0b11 = 0b0100 & 0b0011 = 0b0000 
-000065 9370 0080                 	sts TCCR1A, temp
+000055 9380 0080                 	sts TCCR1A, temp
                                  	; upper 2 bits of WGM and clock select
-000067 e07c                      	ldi temp, ((WGM>> 2) << WGM12)|(PRESCALE << CS10)
-000068 9370 0081                 	sts TCCR1B, temp ; start counter
+000057 e08c                      	ldi temp, ((WGM>> 2) << WGM12)|(PRESCALE << CS10)
+000058 9380 0081                 	sts TCCR1B, temp ; start counter
                                  
-00006a 9100 006f                 	lds R16, TIMSK1
-00006c 6002                      	sbr r16, 1 << OCIE1A
-00006d 9300 006f                 	sts TIMSK1, R16
+00005a 9100 006f                 	lds R16, TIMSK1
+00005c 6002                      	sbr r16, 1 << OCIE1A
+00005d 9300 006f                 	sts TIMSK1, R16
                                  	
                                  	;timer 0 setup
                                  
-00006f e004                      	ldi r16,(1<<CS02);|(1<<CS00)
-000070 bd05                      	out TCCR0B,r16 ; Timer clock = system clock / 256 ; 1024
-000071 e001                      	ldi r16,1<<TOV0
-000072 bb05                      	out TIFR0,r16 ; Clear TOV0/ Clear pending interrupts
-000073 e001                      	ldi r16,1<<TOIE0
-000074 9300 006e                 	sts TIMSK0,r16 ; Enable Timer/Counter0 Overflow Interrupt
+00005f e004                      	ldi r16,(1<<CS02);|(1<<CS00)
+000060 bd05                      	out TCCR0B,r16 ; Timer clock = system clock / 256 ; 1024
+000061 e001                      	ldi r16,1<<TOV0
+000062 bb05                      	out TIFR0,r16 ; Clear TOV0/ Clear pending interrupts
+000063 e001                      	ldi r16,1<<TOIE0
+000064 9300 006e                 	sts TIMSK0,r16 ; Enable Timer/Counter0 Overflow Interrupt
                                  
-000076 d04d                      	rcall resetState
-000077 d04e                      	rcall setState
+                                 	;**************************************************************
+                                 	;* subroutine: initUART
+                                 	;*
+                                 	;* inputs: r17:r16 - baud rate prescale
+                                 	;*
+                                 	;* enables UART transmission with 8 data, 1 parity, no stop bit
+                                 	;* at input baudrate
+                                 	;*
+                                 	;* registers modified: r16
+                                 	;**************************************************************
                                  
-000078 e080                      	ldi currDisplay, 0
-000079 9478                      	sei	; Enable global interrupts
+                                 	.equ	baud	= 9600			; baudrate
+                                 	.equ	bps	= (int(CLOCK)/16/baud) - 1	; baud prescale
+                                 
+000066 e607                      	ldi	r16, LOW(bps)			; load baud prescale
+000067 e010                      	ldi	r17, HIGH(bps)			; into r17:r16
+                                 
+000068 9300 00c4                 	sts	UBRR0L, r16			; load baud prescale
+00006a 9310 00c5                 	sts	UBRR0H, r17			; to UBRR0
+                                 
+00006c e108                      	ldi	r16, (1<<RXEN0) | (1<<TXEN0)	; enable transmitter
+00006d 9300 00c1                 	sts	UCSR0B, r16			; and receiver
+                                 
+00006f d05c                      	rcall resetState
+000070 d05e                      	rcall setState
+                                 
+000071 e090                      	ldi currDisplay, 0
+                                 		
+000072 9478                      	sei	; Enable global interrupts
                                  
                                  	loop:
                                  		; do nothing
-00007a cfff                      		rjmp	loop
+000073 cfff                      		rjmp	loop
+                                 
+                                 ;**************************************************************
+                                 ;* subroutine: puts
+                                 ;*
+                                 ;* inputs: ZH:ZL - Program Memory address of string to transmit
+                                 ;*
+                                 ;* transmits null terminated string via UART
+                                 ;*
+                                 ;* registers modified: r16,r17,r30,r31
+                                 ;**************************************************************
+                                 
+                                 puts:
+000074 930f                      	push r16
+000075 931f                      	push r17
+                                 
+                                 	putsLoop:
+000076 9105                      		lpm r16, Z+				; load character from pmem
+000077 3000                      		cpi	r16,0x00				; check if null
+000078 f039                      		breq	puts_end			; branch if null
+                                 
+                                 		puts_wait:	
+000079 9110 00c0                 			lds	r17,UCSR0A			; load UCSR0A into r17
+00007b ff15                      			sbrs	r17,UDRE0			; wait for empty transmit buffer
+00007c cffc                      			rjmp	puts_wait			; repeat loop
+                                 
+00007d 9300 00c6                 		sts	UDR0,r16			; transmit character
+00007f cff6                      		rjmp	putsLoop				; repeat loop
+                                 
+                                 		puts_end:
+000080 911f                      			pop r17
+000081 910f                      			pop r16
+000082 9508                      			ret					; return from subroutine
                                  
                                  setDigit:
                                  	;begin switch
-00007b 3070                      	cpi temp, 0
-00007c f099                      	breq case0
-00007d 3071                      	cpi temp, 1
-00007e f0b1                      	breq case1
-00007f 3072                      	cpi temp, 2
-000080 f0c9                      	breq case2
-000081 3073                      	cpi temp, 3
-000082 f0e1                      	breq case3
-000083 3074                      	cpi temp, 4
-000084 f0f9                      	breq case4
-000085 3075                      	cpi temp, 5
-000086 f111                      	breq case5
-000087 3076                      	cpi temp, 6
-000088 f129                      	breq case6
-000089 3077                      	cpi temp, 7
-00008a f141                      	breq case7
-00008b 3078                      	cpi temp, 8
-00008c f159                      	breq case8
-00008d 3079                      	cpi temp, 9
-00008e f171                      	breq case9
-00008f c032                      	rjmp casedefault
+000083 3080                      	cpi temp, 0
+000084 f099                      	breq case0
+000085 3081                      	cpi temp, 1
+000086 f0b1                      	breq case1
+000087 3082                      	cpi temp, 2
+000088 f0c9                      	breq case2
+000089 3083                      	cpi temp, 3
+00008a f0e1                      	breq case3
+00008b 3084                      	cpi temp, 4
+00008c f0f9                      	breq case4
+00008d 3085                      	cpi temp, 5
+00008e f111                      	breq case5
+00008f 3086                      	cpi temp, 6
+000090 f129                      	breq case6
+000091 3087                      	cpi temp, 7
+000092 f141                      	breq case7
+000093 3088                      	cpi temp, 8
+000094 f159                      	breq case8
+000095 3089                      	cpi temp, 9
+000096 f171                      	breq case9
+000097 c032                      	rjmp casedefault
                                  	;cases
                                  	case0:
-000090 985a                      		cbi PORTD, input1Pin
-000091 985b                      		cbi PORTD, input2Pin
-000092 985c                      		cbi PORTD, input3Pin
-000093 985d                      		cbi PORTD, input4Pin
-000094 c02e                      		rjmp end_switch
+000098 985a                      		cbi PORTD, input1Pin
+000099 985b                      		cbi PORTD, input2Pin
+00009a 985c                      		cbi PORTD, input3Pin
+00009b 985d                      		cbi PORTD, input4Pin
+00009c c02e                      		rjmp end_switch
                                  	case1:
-000095 9a5a                      		sbi PORTD, input1Pin
-000096 985b                      		cbi PORTD, input2Pin
-000097 985c                      		cbi PORTD, input3Pin
-000098 985d                      		cbi PORTD, input4Pin
-000099 c029                      		rjmp end_switch
+00009d 9a5a                      		sbi PORTD, input1Pin
+00009e 985b                      		cbi PORTD, input2Pin
+00009f 985c                      		cbi PORTD, input3Pin
+0000a0 985d                      		cbi PORTD, input4Pin
+0000a1 c029                      		rjmp end_switch
                                  	case2:
-00009a 985a                      		cbi PORTD, input1Pin
-00009b 9a5b                      		sbi PORTD, input2Pin
-00009c 985c                      		cbi PORTD, input3Pin
-00009d 985d                      		cbi PORTD, input4Pin
-00009e c024                      		rjmp end_switch
+0000a2 985a                      		cbi PORTD, input1Pin
+0000a3 9a5b                      		sbi PORTD, input2Pin
+0000a4 985c                      		cbi PORTD, input3Pin
+0000a5 985d                      		cbi PORTD, input4Pin
+0000a6 c024                      		rjmp end_switch
                                  	case3:
-00009f 9a5a                      		sbi PORTD, input1Pin
-0000a0 9a5b                      		sbi PORTD, input2Pin
-0000a1 985c                      		cbi PORTD, input3Pin
-0000a2 985d                      		cbi PORTD, input4Pin
-0000a3 c01f                      		rjmp end_switch
+0000a7 9a5a                      		sbi PORTD, input1Pin
+0000a8 9a5b                      		sbi PORTD, input2Pin
+0000a9 985c                      		cbi PORTD, input3Pin
+0000aa 985d                      		cbi PORTD, input4Pin
+0000ab c01f                      		rjmp end_switch
                                  	case4:
-0000a4 985a                      		cbi PORTD, input1Pin
-0000a5 985b                      		cbi PORTD, input2Pin
-0000a6 9a5c                      		sbi PORTD, input3Pin
-0000a7 985d                      		cbi PORTD, input4Pin
-0000a8 c01a                      		rjmp end_switch
+0000ac 985a                      		cbi PORTD, input1Pin
+0000ad 985b                      		cbi PORTD, input2Pin
+0000ae 9a5c                      		sbi PORTD, input3Pin
+0000af 985d                      		cbi PORTD, input4Pin
+0000b0 c01a                      		rjmp end_switch
                                  	case5:
-0000a9 9a5a                      		sbi PORTD, input1Pin
-0000aa 985b                      		cbi PORTD, input2Pin
-0000ab 9a5c                      		sbi PORTD, input3Pin
-0000ac 985d                      		cbi PORTD, input4Pin
-0000ad c015                      		rjmp end_switch
+0000b1 9a5a                      		sbi PORTD, input1Pin
+0000b2 985b                      		cbi PORTD, input2Pin
+0000b3 9a5c                      		sbi PORTD, input3Pin
+0000b4 985d                      		cbi PORTD, input4Pin
+0000b5 c015                      		rjmp end_switch
                                  	case6:
-0000ae 985a                      		cbi PORTD, input1Pin
-0000af 9a5b                      		sbi PORTD, input2Pin
-0000b0 9a5c                      		sbi PORTD, input3Pin
-0000b1 985d                      		cbi PORTD, input4Pin
-0000b2 c010                      		rjmp end_switch
+0000b6 985a                      		cbi PORTD, input1Pin
+0000b7 9a5b                      		sbi PORTD, input2Pin
+0000b8 9a5c                      		sbi PORTD, input3Pin
+0000b9 985d                      		cbi PORTD, input4Pin
+0000ba c010                      		rjmp end_switch
                                  	case7:
-0000b3 9a5a                      		sbi PORTD, input1Pin
-0000b4 9a5b                      		sbi PORTD, input2Pin
-0000b5 9a5c                      		sbi PORTD, input3Pin
-0000b6 985d                      		cbi PORTD, input4Pin
-0000b7 c00b                      		rjmp end_switch
+0000bb 9a5a                      		sbi PORTD, input1Pin
+0000bc 9a5b                      		sbi PORTD, input2Pin
+0000bd 9a5c                      		sbi PORTD, input3Pin
+0000be 985d                      		cbi PORTD, input4Pin
+0000bf c00b                      		rjmp end_switch
                                  	case8:
-0000b8 985a                      		cbi PORTD, input1Pin
-0000b9 985b                      		cbi PORTD, input2Pin
-0000ba 985c                      		cbi PORTD, input3Pin
-0000bb 9a5d                      		sbi PORTD, input4Pin
-0000bc c006                      		rjmp end_switch
+0000c0 985a                      		cbi PORTD, input1Pin
+0000c1 985b                      		cbi PORTD, input2Pin
+0000c2 985c                      		cbi PORTD, input3Pin
+0000c3 9a5d                      		sbi PORTD, input4Pin
+0000c4 c006                      		rjmp end_switch
                                  	case9:
-0000bd 9a5a                      		sbi PORTD, input1Pin
-0000be 985b                      		cbi PORTD, input2Pin
-0000bf 985c                      		cbi PORTD, input3Pin
-0000c0 9a5d                      		sbi PORTD, input4Pin
-0000c1 c001                      		rjmp end_switch
+0000c5 9a5a                      		sbi PORTD, input1Pin
+0000c6 985b                      		cbi PORTD, input2Pin
+0000c7 985c                      		cbi PORTD, input3Pin
+0000c8 9a5d                      		sbi PORTD, input4Pin
+0000c9 c001                      		rjmp end_switch
                                  	casedefault:
-0000c2 9508                      		ret
+0000ca 9508                      		ret
                                  	end_switch:
-0000c3 9508                      		ret
+0000cb 9508                      		ret
                                  
                                  resetState:
-0000c4 e060                        ldi		currState, 0x00
-0000c5 9508                        ret
+0000cc e060                        ldi		currState, 0x00
+0000cd e070                        ldi		currMsg, 0x00
+0000ce 9508                        ret
                                  
                                  setState:
-0000c6 e8ee                      	ldi	ZL, LOW(2*pArr)			; Initialize Z pointer
-0000c7 e0f0                      	ldi ZH, HIGH(2*pArr)		; to pmem array address
-0000c8 0fe6                      	add ZL, currState
-0000c9 9105                      	lpm ledsL, Z+						; Load LED LOW value from flash memory
-0000ca 9115                      	lpm ledsH, Z+						; Load LED HIGH value from flash memory
-0000cb 9125                      	lpm decDigit, Z+						; Load time interval value from fash memory
-0000cc 9135                      	lpm uniDigit, Z+
-0000cd e040                      	ldi decTimer, 0x00
-0000ce e051                      	ldi uniTimer, 0x01
-0000cf 5f6c                      	subi currState, -4
+0000cf efea                      	ldi	ZL, LOW(2*pArr)			; Initialize Z pointer
+0000d0 e0f1                      	ldi ZH, HIGH(2*pArr)		; to pmem array address
+0000d1 0fe6                      	add ZL, currState
+0000d2 9105                      	lpm ledsL, Z+						; Load LED LOW value from flash memory
+0000d3 9115                      	lpm ledsH, Z+						; Load LED HIGH value from flash memory
+0000d4 9125                      	lpm decDigit, Z+						; Load time interval value from fash memory
+0000d5 9135                      	lpm uniDigit, Z+
+0000d6 e040                      	ldi decTimer, 0x00
+0000d7 e050                      	ldi uniTimer, 0x00
+0000d8 5f6c                      	subi currState, -4
                                    
                                  	; For loop
-0000d0 e071                      	ldi temp, 1
+0000d9 e081                      	ldi temp, 1
                                  	lowForLoop:
-0000d1 3870                      		cpi	temp, 0b10000000
-0000d2 f051                      		breq endLowForLoop
-0000d3 937f                      		push temp
-0000d4 2370                      		and temp, ledsL
-0000d5 917f                      		pop temp
-0000d6 f009                      		breq passLow
-0000d7 9a28                      		sbi PORTB, dataPin
+0000da 3880                      		cpi	temp, 0b10000000
+0000db f051                      		breq endLowForLoop
+0000dc 938f                      		push temp
+0000dd 2380                      		and temp, ledsL
+0000de 918f                      		pop temp
+0000df f009                      		breq passLow
+0000e0 9a28                      		sbi PORTB, dataPin
                                  	passLow:
-0000d8 9a2a                      		sbi	PORTB, clkPin
-0000d9 982a                      		cbi	PORTB, clkPin
-0000da 9828                      		cbi PORTB, dataPin
-0000db 0f77                      		lsl temp
-0000dc cff4                      		rjmp lowForLoop
+0000e1 9a2a                      		sbi	PORTB, clkPin
+0000e2 982a                      		cbi	PORTB, clkPin
+0000e3 9828                      		cbi PORTB, dataPin
+0000e4 0f88                      		lsl temp
+0000e5 cff4                      		rjmp lowForLoop
                                  	endLowForLoop:
-0000dd e071                      		ldi temp, 1
+0000e6 e081                      		ldi temp, 1
                                  	highForLoop:
-0000de 3870                      		cpi	temp, 0b10000000
-0000df f051                      		breq endHighForLoop
-0000e0 937f                      		push temp
-0000e1 2371                      		and temp, ledsH
-0000e2 917f                      		pop temp
-0000e3 f009                      		breq passHigh
-0000e4 9a28                      		sbi PORTB, dataPin
+0000e7 3880                      		cpi	temp, 0b10000000
+0000e8 f051                      		breq endHighForLoop
+0000e9 938f                      		push temp
+0000ea 2381                      		and temp, ledsH
+0000eb 918f                      		pop temp
+0000ec f009                      		breq passHigh
+0000ed 9a28                      		sbi PORTB, dataPin
                                  	passHigh:
-0000e5 9a2a                      		sbi	PORTB, clkPin
-0000e6 982a                      		cbi	PORTB, clkPin
-0000e7 9828                      		cbi PORTB, dataPin
-0000e8 0f77                      		lsl temp
-0000e9 cff4                      		rjmp highForLoop
+0000ee 9a2a                      		sbi	PORTB, clkPin
+0000ef 982a                      		cbi	PORTB, clkPin
+0000f0 9828                      		cbi PORTB, dataPin
+0000f1 0f88                      		lsl temp
+0000f2 cff4                      		rjmp highForLoop
                                  	endHighForLoop:
                                  	; end For loop
                                  
-0000ea 9829                      	cbi	PORTB, latchPin
-0000eb 9a29                      	sbi	PORTB, latchPin
-0000ec 9829                      	cbi	PORTB, latchPin
+                                 	//cbi	PORTB, latchPin
+0000f3 9a29                      	sbi	PORTB, latchPin
+0000f4 9829                      	cbi	PORTB, latchPin
                                  
-0000ed 316c                      	cpi		currState, 28
-0000ee f2a9                      	breq	resetState
+0000f5 e1ea                      	ldi	ZL,LOW(2*myMsg)			; load Z pointer with
+0000f6 e0f2                      	ldi	ZH,HIGH(2*myMsg)		; myStr address
+                                 	
+0000f7 0fe7                      	add ZL, currMsg
+0000f8 5e74                      	subi currMsg, -28
+                                 	
+0000f9 df7a                      	rcall puts				; transmit string
+                                 
+0000fa 316c                      	cpi		currState, 28
+0000fb f281                      	breq	resetState
+0000fc 9508                      	ret
+                                 
+0000fd 9232                      pArr:	.db	0x32, 0x92, 2, 1, \
+0000fe 0102
+0000ff 9252                      				0x52, 0x92, 0, 6, \
+000100 0600
+000101 9191                      				0x91, 0x91, 1, 1, \
+000102 0101
+000103 9292                      				0x92, 0x92, 0, 6, \
+000104 0600
+000105 3286                      				0x86, 0x32, 2, 1, \
+000106 0102
+000107 5286                      				0x86, 0x52, 0, 6, \
+000108 0600
+000109 8686                      				0x86, 0x86, 5, 1, \
+00010a 0105
+00010b 8a8a
+00010c 0600                      				0x8A, 0x8A, 0, 6
+                                 
+00010d 207c
+00010e 535b
+00010f 6d65
+000110 7061
+000111 6f68
+000112 6572
+000113 5320
+000114 6174
+000115 6574
+000116 205d
+000117 3031
+000118 3030
+000119 2030                      myMsg:	.db "| [Semaphore State] 10000 |", 0x00, \
+00011a 007c
+00011b 207c
+00011c 535b
+00011d 6d65
+00011e 7061
+00011f 6f68
+000120 6572
+000121 5320
+000122 6174
+000123 6574
+000124 205d
+000125 3032
+000126 3030
+000127 2030                      			"| [Semaphore State] 20000 |", 0x00, \
+000128 007c
+000129 207c
+00012a 535b
+00012b 6d65
+00012c 7061
+00012d 6f68
+00012e 6572
+00012f 5320
+000130 6174
+000131 6574
+000132 205d
+000133 3030
+000134 3030
+000135 2031                      			"| [Semaphore State] 00001 |", 0x00, \
+000136 007c
+000137 207c
+000138 535b
+000139 6d65
+00013a 7061
+00013b 6f68
+00013c 6572
+00013d 5320
+00013e 6174
+00013f 6574
+000140 205d
+000141 3030
+000142 3030
+000143 2030                      			"| [Semaphore State] 00000 |", 0x00, \
+000144 007c
+000145 207c
+000146 535b
+000147 6d65
+000148 7061
+000149 6f68
+00014a 6572
+00014b 5320
+00014c 6174
+00014d 6574
+00014e 205d
+00014f 3130
+000150 3031
+000151 2030                      			"| [Semaphore State] 01100 |", 0x00, \
+000152 007c
+000153 207c
+000154 535b
+000155 6d65
+000156 7061
+000157 6f68
+000158 6572
+000159 5320
+00015a 6174
+00015b 6574
+00015c 205d
+00015d 3130
+00015e 3032
+00015f 2030                      			"| [Semaphore State] 01200 |", 0x00, \
+000160 007c
+000161 207c
+000162 535b
+000163 6d65
+000164 7061
+000165 6f68
+000166 6572
+000167 5320
+000168 6174
+000169 6574
+00016a 205d
+00016b 3130
+00016c 3130
+00016d 2030                      			"| [Semaphore State] 01010 |", 0x00, \
+00016e 007c
+00016f 207c
+000170 535b
+000171 6d65
+000172 7061
+000173 6f68
+000174 6572
+000175 5320
+000176 6174
+000177 6574
+000178 205d
+000179 3230
+00017a 3230
+00017b 2030
 
 
 RESOURCE USE INFORMATION
@@ -1337,39 +1517,39 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 "ATmega328P" register use summary:
-x  :   0 y  :   0 z  :   4 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
+x  :   0 y  :   0 z  :   5 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:  23 r17:   2 r18:   2 r19:   2 r20:   4 
-r21:   6 r22:   4 r23:  39 r24:   4 r25:   0 r26:   0 r27:   0 r28:   0 
-r29:   0 r30:   2 r31:   1 
-Registers used: 12 out of 35 (34.3%)
+r13:   0 r14:   0 r15:   0 r16:  32 r17:   8 r18:   2 r19:   2 r20:   4 
+r21:   6 r22:   4 r23:   3 r24:  39 r25:   4 r26:   0 r27:   0 r28:   0 
+r29:   0 r30:   4 r31:   2 
+Registers used: 13 out of 35 (37.1%)
 
 "ATmega328P" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   1 adiw  :   0 and   :   2 
+.lds  :   0 .sts  :   0 adc   :   0 add   :   2 adiw  :   0 and   :   2 
 andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :  15 brge  :   0 brhc  :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :  16 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :   4 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :  33 cbr   :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  :   0 cbi   :  32 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   2 cpc   :   0 
-cpi   :  15 cpse  :   0 dec   :   1 eor   :   0 fmul  :   0 fmuls :   0 
+cpi   :  16 cpse  :   0 dec   :   1 eor   :   0 fmul  :   0 fmuls :   0 
 fmulsu:   0 icall :   0 ijmp  :   0 in    :   2 inc   :   3 jmp   :   3 
-ld    :   0 ldd   :   0 ldi   :  19 lds   :   1 lpm   :   4 lsl   :   2 
+ld    :   0 ldd   :   0 ldi   :  25 lds   :   2 lpm   :   5 lsl   :   2 
 lsr   :   0 mov   :   2 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :   8 pop   :   6 
-push  :   6 rcall :   5 ret   :   4 reti  :   2 rjmp  :  15 rol   :   0 
+neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :   8 pop   :   8 
+push  :   8 rcall :   6 ret   :   5 reti  :   2 rjmp  :  17 rol   :   0 
 ror   :   0 sbc   :   0 sbci  :   0 sbi   :  22 sbic  :   0 sbis  :   0 
-sbiw  :   0 sbr   :   1 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 
+sbiw  :   0 sbr   :   1 sbrc  :   0 sbrs  :   1 sec   :   0 seh   :   0 
 sei   :   1 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
-sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   6 
-sub   :   0 subi  :   1 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 28 out of 113 (24.8%)
+sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :  10 
+sub   :   0 subi  :   2 swap  :   0 tst   :   0 wdr   :   0 
+Instructions used: 29 out of 113 (25.7%)
 
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0001e0    392     32    424   32768   1.3%
+[.cseg] 0x000000 0x0002fa    450    256    706   32768   2.2%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 

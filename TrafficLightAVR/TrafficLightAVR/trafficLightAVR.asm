@@ -36,15 +36,17 @@
 .def uniTimer = R21
 
 .def currState = R22		; Define loop count register
-.def temp = R23
-.def currDisplay = R24
+.def currMsg	= R23
+.def temp = R24
+.def currDisplay = R25
 
 .equ clkPin = PINB2
 .equ latchPin = PINB1
 .equ dataPin = PINB0
 
-.equ uniPin = PIND7
-.equ decPin = PIND6
+.equ uniPin = PIND6
+.equ decPin = PIND7
+
 
 .equ input1Pin = PIND2
 .equ input2Pin = PIND3
@@ -127,15 +129,6 @@ ISR_TOV0:
 	reti
 
 reset:
-	pArr:	.db	0x32, 0x92, 2, 1, \
-				0x52, 0x92, 0, 6, \
-				0x91, 0x91, 1, 1, \
-				0x92, 0x92, 0, 6, \
-				0x86, 0x32, 2, 1, \
-				0x86, 0x52, 0, 6, \
-				0x86, 0x86, 5, 1, \
-				0x8A, 0x8A, 0, 6
-	
 	; Stack initialization
 	ldi	temp, LOW(RAMEND)		; load low byte of RAMEND into temp reg
 	out	SPL, temp				; store temp reg in stack pointer low
@@ -171,15 +164,71 @@ reset:
 	ldi r16,1<<TOIE0
 	sts TIMSK0,r16 ; Enable Timer/Counter0 Overflow Interrupt
 
+	;**************************************************************
+	;* subroutine: initUART
+	;*
+	;* inputs: r17:r16 - baud rate prescale
+	;*
+	;* enables UART transmission with 8 data, 1 parity, no stop bit
+	;* at input baudrate
+	;*
+	;* registers modified: r16
+	;**************************************************************
+
+	.equ	baud	= 9600			; baudrate
+	.equ	bps	= (int(CLOCK)/16/baud) - 1	; baud prescale
+
+	ldi	r16, LOW(bps)			; load baud prescale
+	ldi	r17, HIGH(bps)			; into r17:r16
+
+	sts	UBRR0L, r16			; load baud prescale
+	sts	UBRR0H, r17			; to UBRR0
+
+	ldi	r16, (1<<RXEN0) | (1<<TXEN0)	; enable transmitter
+	sts	UCSR0B, r16			; and receiver
+
 	rcall resetState
 	rcall setState
 
 	ldi currDisplay, 0
+		
 	sei	; Enable global interrupts
 
 	loop:
 		; do nothing
 		rjmp	loop
+
+;**************************************************************
+;* subroutine: puts
+;*
+;* inputs: ZH:ZL - Program Memory address of string to transmit
+;*
+;* transmits null terminated string via UART
+;*
+;* registers modified: r16,r17,r30,r31
+;**************************************************************
+
+puts:
+	push r16
+	push r17
+
+	putsLoop:
+		lpm r16, Z+				; load character from pmem
+		cpi	r16,0x00				; check if null
+		breq	puts_end			; branch if null
+
+		puts_wait:	
+			lds	r17,UCSR0A			; load UCSR0A into r17
+			sbrs	r17,UDRE0			; wait for empty transmit buffer
+			rjmp	puts_wait			; repeat loop
+
+		sts	UDR0,r16			; transmit character
+		rjmp	putsLoop				; repeat loop
+
+		puts_end:
+			pop r17
+			pop r16
+			ret					; return from subroutine
 
 setDigit:
 	;begin switch
@@ -272,6 +321,7 @@ setDigit:
 
 resetState:
   ldi		currState, 0x00
+  ldi		currMsg, 0x00
   ret
 
 setState:
@@ -283,7 +333,7 @@ setState:
 	lpm decDigit, Z+						; Load time interval value from fash memory
 	lpm uniDigit, Z+
 	ldi decTimer, 0x00
-	ldi uniTimer, 0x01
+	ldi uniTimer, 0x00
 	subi currState, -4
   
 	; For loop
@@ -321,10 +371,36 @@ setState:
 	endHighForLoop:
 	; end For loop
 
-	cbi	PORTB, latchPin
+	//cbi	PORTB, latchPin
 	sbi	PORTB, latchPin
 	cbi	PORTB, latchPin
+
+	ldi	ZL,LOW(2*myMsg)			; load Z pointer with
+	ldi	ZH,HIGH(2*myMsg)		; myStr address
+	
+	add ZL, currMsg
+	subi currMsg, -28
+	
+	rcall puts				; transmit string
 
 	cpi		currState, 28
 	breq	resetState
 	ret
+
+pArr:	.db	0x32, 0x92, 2, 1, \
+				0x52, 0x92, 0, 6, \
+				0x91, 0x91, 1, 1, \
+				0x92, 0x92, 0, 6, \
+				0x86, 0x32, 2, 1, \
+				0x86, 0x52, 0, 6, \
+				0x86, 0x86, 5, 1, \
+				0x8A, 0x8A, 0, 6
+
+myMsg:	.db "| [Semaphore State] 10000 |", 0x00, \
+			"| [Semaphore State] 20000 |", 0x00, \
+			"| [Semaphore State] 00001 |", 0x00, \
+			"| [Semaphore State] 00000 |", 0x00, \
+			"| [Semaphore State] 01100 |", 0x00, \
+			"| [Semaphore State] 01200 |", 0x00, \
+			"| [Semaphore State] 01010 |", 0x00, \
+			"| [Semaphore State] 02020 |", 0x00

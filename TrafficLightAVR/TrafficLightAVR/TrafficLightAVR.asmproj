@@ -80,16 +80,10 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="timer0Interrupt.asm">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="trafficLightAVR.asm">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="mainC.asm">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="TimerInterrupt.asm">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
