@@ -1,14 +1,23 @@
-;*******************************************************
+;**************************************************************
+;* 
+;* Universidade Federal de Alagoas
+;* Instituto de Computação
+;* ECOM059 - Microcontroladores e Aplicacoes - Semester 2021.2
+;*
+;**************************************************************
 ;* Traffic Light AVR - ATmega328P
 ;*
 ;* Main File:
 ;*	trafficLightAVR.asm
 ;*
 ;* Authors:
-;*	Arquimedes
-;*	Hugo
-;*	Pamela
-;*	Sofia
+;*	Arquimedes Vinícius Pereira de França Moura
+;*	Hugo Tallys Martins Olveira
+;*	Pâmela Medeiros dos Santos
+;*	Sofia Lopes de Castro
+;* 
+;* Creation Date:
+;*	29/06/2022
 ;* 
 ;* Project Description :
 ;*	Firmware implementation of a system of 5 traffic lights.
