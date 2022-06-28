@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Mon Jun 27 19:02:31 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Mon Jun 27 23:14:27 2022
 
 
 EQU  SIGNATURE_000 0000001e
@@ -697,14 +697,14 @@ EQU  SPMRaddr     00000032
 EQU  INT_VECTORS_SIZE 00000034
 DEF  ledsL        r16
 DEF  ledsH        r17
-DEF  decDigit     r18
-DEF  uniDigit     r19
-DEF  decTimer     r20
-DEF  uniTimer     r21
+DEF  decTimer     r18
+DEF  uniTimer     r19
+DEF  decDigit     r20
+DEF  uniDigit     r21
 DEF  currState    r22
 DEF  currMsg      r23
-DEF  temp         r24
-DEF  currDisplay  r25
+DEF  currDisplay  r24
+DEF  temp         r25
 EQU  clkPin       00000002
 EQU  latchPin     00000001
 EQU  dataPin      00000000
@@ -718,34 +718,34 @@ EQU  PRESCALE     00000004
 EQU  PRESCALE_DIV 00000100
 EQU  WGM          00000004
 EQU  TOP          0000f424
-CSEG reset        00000047
-CSEG OCI1A_Interrupt 00000022
+EQU  baud         00002580
+EQU  bps          00000067
+CSEG RESET        00000047
+CSEG ISR_OCI1A    00000022
 CSEG ISR_TOV0     00000033
 CSEG skip1        0000002a
 CSEG skip2        0000002f
 CSEG setState     000000cf
 CSEG display1     0000003e
-CSEG setDigit     00000083
+CSEG setDigit     00000085
 CSEG endInte      00000043
-EQU  baud         00002580
-EQU  bps          00000067
+CSEG initMsg      00000111
+CSEG puts         00000076
 CSEG resetState   000000cc
-CSEG loop         00000073
-CSEG puts         00000074
-CSEG putsLoop     00000076
-CSEG puts_end     00000080
-CSEG puts_wait    00000079
-CSEG case0        00000098
-CSEG case1        0000009d
-CSEG case2        000000a2
-CSEG case3        000000a7
-CSEG case4        000000ac
-CSEG case5        000000b1
-CSEG case6        000000b6
-CSEG case7        000000bb
-CSEG case8        000000c0
-CSEG case9        000000c5
-CSEG casedefault  000000ca
+CSEG mainLoop     00000075
+CSEG putsLoop     00000078
+CSEG puts_end     00000082
+CSEG puts_wait    0000007b
+CSEG case0        00000099
+CSEG case1        0000009e
+CSEG case2        000000a3
+CSEG case3        000000a8
+CSEG case4        000000ad
+CSEG case5        000000b2
+CSEG case6        000000b7
+CSEG case7        000000bc
+CSEG case8        000000c1
+CSEG case9        000000c6
 CSEG end_switch   000000cb
 CSEG pArr         00000101
 CSEG highForLoop  000000dc
@@ -754,4 +754,4 @@ CSEG highPass     000000e3
 CSEG lowForLoop   000000e9
 CSEG endLowForLoop 000000f5
 CSEG lowPass      000000f0
-CSEG myMsg        00000111
+CSEG myMsg        00000129
