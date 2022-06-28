@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Mon Jun 27 23:14:27 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Tue Jun 28 10:48:28 2022
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m328Pdef.inc'
@@ -999,7 +999,7 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  ;* Project Description :
                                  ;*	Firmware implementation of a system of 5 traffic lights.
                                  ;* 	Each state represents the current active color of the
-                                 ;*  traffic light where [0 = Red | 1 = Green | 2 = Yellow].
+                                 ;*	traffic light where [0 = Red | 1 = Green | 2 = Yellow].
                                  ;*
                                  ;* ----- | --------------------- | ----------- | ---- |
                                  ;* State |         Binary        | Hexadecimal | Time |
@@ -1027,6 +1027,7 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  .def 	currState 	= 	R22		; Current state pointer
                                  .def 	currMsg		= 	R23		; Current message pointer
                                  .def 	currDisplay	=	R24		; Seven segment display active flag
+                                 								; 0 = Dec 1 = Uni
                                  
                                  .def 	temp 		= 	R25		; Temporary register
                                  
@@ -1046,19 +1047,19 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  .equ 	input4Pin 	= 	PIND5
                                  
                                  ;*** Timer1 parameters ***
-                                 #define	CLOCK 			16.0e6 	; Clock speed
-                                 #define	DELAY 			1 		; Delay time in seconds
-                                 .equ 	PRESCALE 	= 	0b100	; /256 prescale
-                                 .equ 	PRESCALE_DIV 	= 256
-                                 .equ 	WGM 		= 	0b0100 	; Waveform generation mode CTC
+                                 #define	CLOCK				16.0e6	; Clock speed
+                                 #define	DELAY				1		; Delay time in seconds
+                                 .equ 	PRESCALE		= 	0b100	; /256 prescale
+                                 .equ 	PRESCALE_DIV	=	256
+                                 .equ 	WGM				=	0b0100	; Waveform generation mode CTC
                                  
                                  ; Ensure that TOP value is between 0 and 65535
-                                 .equ 	TOP 		= 	int(0.5 + ((CLOCK/PRESCALE_DIV)*DELAY))
-                                 .if 	TOP > 65535
+                                 .equ 	TOP				=	int(0.5 + ((CLOCK/PRESCALE_DIV)*DELAY))
+                                 .if 	TOP 			> 	65535
                                  .endif
                                  
                                  ;*** USART parameters ***
-                                 .equ	baud		= 	9600						; Baudrate
+                                 .equ	baud		=	9600						; Baudrate
                                  .equ	bps			=	(int(CLOCK)/16/baud) - 1	; Baud prescale
                                  
                                  ;*** Start of Code Segment ***
@@ -1069,6 +1070,17 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  .org 0x0020
 000020 940c 0033                 jmp ISR_TOV0
                                  
+                                 ;**************************************************************
+                                 ;* Interrupt Service Routine: ISR_OCI1A
+                                 ;*
+                                 ;* Inputs:	R18 - Timer unit digit
+                                 ;* 			R19 - Timer decimal digit
+                                 ;*
+                                 ;* Increments the unit and decimal timer counter and checks if
+                                 ;* the timer expired in order to set the next state.
+                                 ;*
+                                 ;* Registers modified: R18, R19
+                                 ;**************************************************************
                                  ISR_OCI1A:
 000022 930f                      	push R16
 000023 b70f                      	in R16, SREG
@@ -1076,15 +1088,15 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  	
 000025 9533                      	inc uniTimer
                                  
-000026 303a                      	cpi uniTimer, 10
+000026 303a                      	cpi uniTimer, 10				; Check unit timer digit overflow
 000027 f411                      	brne skip1
                                  
 000028 e030                      	ldi uniTimer, 0
 000029 9523                      	inc decTimer
                                  
                                  	skip1:
-00002a 1735                      		cp	uniTimer, uniDigit
-00002b f419                      		brne skip2
+00002a 1735                      		cp	uniTimer, uniDigit		; Check if current timer is expired
+00002b f419                      		brne skip2					; by comparing both digits
 00002c 1724                      		cp	decTimer, decDigit
 00002d f409                      		brne skip2
 00002e d0a0                      		rcall setState
@@ -1094,36 +1106,47 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
 000031 910f                      		pop R16
 000032 9518                      		reti
                                  
+                                 ;**************************************************************
+                                 ;* Interrupt Service Routine: ISR_TOV0
+                                 ;*
+                                 ;* Inputs:	R18 - Timer unit digit
+                                 ;* 			R19 - Timer decimal digit
+                                 ;* 			R24 - Current active display flag
+                                 ;*
+                                 ;* Switches the current active 7 segment display and sets its
+                                 ;* digit accordingly.
+                                 ;*
+                                 ;* Registers modified: R16, R24, R25
+                                 ;**************************************************************
                                  ISR_TOV0:
-000033 930f                      	push r16
-000034 b70f                      	in r16,SREG
-000035 930f                      	push r16
+000033 930f                      	push R16
+000034 b70f                      	in R16,	SREG
+000035 930f                      	push R16
                                  	
 000036 3080                      	cpi currDisplay, 0
 000037 f431                      	brne display1
                                  
-000038 9a5f                      	sbi PORTD, decPin
-000039 985e                      	cbi PORTD, uniPin
+000038 9a5f                      	sbi PORTD, decPin			; Turn on decimal digit display
+000039 985e                      	cbi PORTD, uniPin			; Turn off unit digit display
                                  
 00003a 2f92                      	mov temp, decTimer
-00003b d049                      	rcall setDigit
-00003c 9583                      	inc currDisplay
-00003d c005                      	rjmp endInte
+00003b d049                      	rcall setDigit				; Sets BCD input
+00003c 9583                      	inc currDisplay				; In the next interruption display 1
+00003d c005                      	rjmp exitISR				; will be turned on
                                  
                                  	display1:
+00003e 985f                      		cbi PORTD, decPin		; Turn off decimal digit display
+00003f 9a5e                      		sbi PORTD, uniPin		; Turn on unit digit display
                                  
-00003e 9a5e                      	sbi PORTD, uniPin
-00003f 985f                      	cbi PORTD, decPin
+000040 2f93                      		mov temp, uniTimer
+000041 d043                      		rcall setDigit			; In the next interruption display 0
+000042 958a                      		dec currDisplay			; will be turned on
                                  
-000040 2f93                      	mov temp, uniTimer
-000041 d043                      	rcall setDigit
-000042 958a                      	dec currDisplay
-                                 
-                                 	endInte:
-000043 910f                      	pop r16
-000044 bf0f                      	out SREG,r16
-000045 910f                      	pop r16
-000046 9518                      	reti
+                                 	exitISR:
+000043 910f                      		pop R16
+000044 bf0f                      		out	SREG,	R16
+000045 910f                      		pop R16
+000046 9518                      		reti
                                  
                                  RESET:
                                  	;*** Stack initialization ***
@@ -1222,8 +1245,7 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  ;**************************************************************
                                  ;* Subroutine: setDigit
                                  ;*
-                                 ;* Inputs: R25 (temp) - Digit to be displayed in the 7segment
-                                 ;* display.
+                                 ;* Inputs: R25 - Digit to be displayed in the 7segment LEDs
                                  ;*
                                  ;* Sets the input pins (PORTD) of BCD accordingly.
                                  ;*
@@ -1333,12 +1355,14 @@ AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\Traffic
                                  ;* Subroutine: setState
                                  ;*
                                  ;* Inputs:	ZH:ZL - Program Memory address of current state data
-                                 ;*						
+                                 ;*			R22   - Current state pointer in program memory
+                                 ;* 			R32	  - Current message pointer in program memory
                                  ;*
                                  ;* Loads current state data from program memory and activates
-                                 ;* the shift registers to light the LEDs
+                                 ;* the shift registers to light the LEDs. Also sends logging
+                                 ;* to serial monitor.
                                  ;*
-                                 ;* Registers modified: R22, R23
+                                 ;* Registers modified: R16 - R23, R25, R30, R31
                                  ;**************************************************************
                                  setState:
 0000cf e0e2                      	ldi	ZL,	LOW(2*pArr)			; Initialize Z pointer

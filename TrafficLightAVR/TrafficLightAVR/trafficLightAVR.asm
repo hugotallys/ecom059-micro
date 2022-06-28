@@ -13,7 +13,7 @@
 ;* Project Description :
 ;*	Firmware implementation of a system of 5 traffic lights.
 ;* 	Each state represents the current active color of the
-;*  traffic light where [0 = Red | 1 = Green | 2 = Yellow].
+;*	traffic light where [0 = Red | 1 = Green | 2 = Yellow].
 ;*
 ;* ----- | --------------------- | ----------- | ---- |
 ;* State |         Binary        | Hexadecimal | Time |
@@ -41,6 +41,7 @@
 .def 	currState 	= 	R22		; Current state pointer
 .def 	currMsg		= 	R23		; Current message pointer
 .def 	currDisplay	=	R24		; Seven segment display active flag
+								; 0 = Dec 1 = Uni
 
 .def 	temp 		= 	R25		; Temporary register
 
@@ -60,20 +61,20 @@
 .equ 	input4Pin 	= 	PIND5
 
 ;*** Timer1 parameters ***
-#define	CLOCK 			16.0e6 	; Clock speed
-#define	DELAY 			1 		; Delay time in seconds
-.equ 	PRESCALE 	= 	0b100	; /256 prescale
-.equ 	PRESCALE_DIV 	= 256
-.equ 	WGM 		= 	0b0100 	; Waveform generation mode CTC
+#define	CLOCK				16.0e6	; Clock speed
+#define	DELAY				1		; Delay time in seconds
+.equ 	PRESCALE		= 	0b100	; /256 prescale
+.equ 	PRESCALE_DIV	=	256
+.equ 	WGM				=	0b0100	; Waveform generation mode CTC
 
 ; Ensure that TOP value is between 0 and 65535
-.equ 	TOP 		= 	int(0.5 + ((CLOCK/PRESCALE_DIV)*DELAY))
-.if 	TOP > 65535
+.equ 	TOP				=	int(0.5 + ((CLOCK/PRESCALE_DIV)*DELAY))
+.if 	TOP 			> 	65535
 .error	"TOP is out of range"
 .endif
 
 ;*** USART parameters ***
-.equ	baud		= 	9600						; Baudrate
+.equ	baud		=	9600						; Baudrate
 .equ	bps			=	(int(CLOCK)/16/baud) - 1	; Baud prescale
 
 ;*** Start of Code Segment ***
@@ -84,6 +85,17 @@ jmp ISR_OCI1A
 .org 0x0020
 jmp ISR_TOV0
 
+;**************************************************************
+;* Interrupt Service Routine: ISR_OCI1A
+;*
+;* Inputs:	R18 - Timer unit digit
+;* 			R19 - Timer decimal digit
+;*
+;* Increments the unit and decimal timer counter and checks if
+;* the timer expired in order to set the next state.
+;*
+;* Registers modified: R18, R19
+;**************************************************************
 ISR_OCI1A:
 	push R16
 	in R16, SREG
@@ -91,15 +103,15 @@ ISR_OCI1A:
 	
 	inc uniTimer
 
-	cpi uniTimer, 10
+	cpi uniTimer, 10				; Check unit timer digit overflow
 	brne skip1
 
 	ldi uniTimer, 0
 	inc decTimer
 
 	skip1:
-		cp	uniTimer, uniDigit
-		brne skip2
+		cp	uniTimer, uniDigit		; Check if current timer is expired
+		brne skip2					; by comparing both digits
 		cp	decTimer, decDigit
 		brne skip2
 		rcall setState
@@ -109,36 +121,47 @@ ISR_OCI1A:
 		pop R16
 		reti
 
+;**************************************************************
+;* Interrupt Service Routine: ISR_TOV0
+;*
+;* Inputs:	R18 - Timer unit digit
+;* 			R19 - Timer decimal digit
+;* 			R24 - Current active display flag
+;*
+;* Switches the current active 7 segment display and sets its
+;* digit accordingly.
+;*
+;* Registers modified: R16, R24, R25
+;**************************************************************
 ISR_TOV0:
-	push r16
-	in r16,SREG
-	push r16
+	push R16
+	in R16,	SREG
+	push R16
 	
 	cpi currDisplay, 0
 	brne display1
 
-	sbi PORTD, decPin
-	cbi PORTD, uniPin
+	sbi PORTD, decPin			; Turn on decimal digit display
+	cbi PORTD, uniPin			; Turn off unit digit display
 
 	mov temp, decTimer
-	rcall setDigit
-	inc currDisplay
-	rjmp endInte
+	rcall setDigit				; Sets BCD input
+	inc currDisplay				; In the next interruption display 1
+	rjmp exitISR				; will be turned on
 
 	display1:
+		cbi PORTD, decPin		; Turn off decimal digit display
+		sbi PORTD, uniPin		; Turn on unit digit display
 
-	sbi PORTD, uniPin
-	cbi PORTD, decPin
+		mov temp, uniTimer
+		rcall setDigit			; In the next interruption display 0
+		dec currDisplay			; will be turned on
 
-	mov temp, uniTimer
-	rcall setDigit
-	dec currDisplay
-
-	endInte:
-	pop r16
-	out SREG,r16
-	pop r16
-	reti
+	exitISR:
+		pop R16
+		out	SREG,	R16
+		pop R16
+		reti
 
 RESET:
 	;*** Stack initialization ***
@@ -237,8 +260,7 @@ puts:
 ;**************************************************************
 ;* Subroutine: setDigit
 ;*
-;* Inputs: R25 (temp) - Digit to be displayed in the 7segment
-;* display.
+;* Inputs: R25 - Digit to be displayed in the 7segment LEDs
 ;*
 ;* Sets the input pins (PORTD) of BCD accordingly.
 ;*
@@ -348,12 +370,14 @@ resetState:
 ;* Subroutine: setState
 ;*
 ;* Inputs:	ZH:ZL - Program Memory address of current state data
-;*						
+;*			R22   - Current state pointer in program memory
+;* 			R32	  - Current message pointer in program memory
 ;*
 ;* Loads current state data from program memory and activates
-;* the shift registers to light the LEDs
+;* the shift registers to light the LEDs. Also sends logging
+;* to serial monitor.
 ;*
-;* Registers modified: R22, R23
+;* Registers modified: R16 - R23, R25, R30, R31
 ;**************************************************************
 setState:
 	ldi	ZL,	LOW(2*pArr)			; Initialize Z pointer

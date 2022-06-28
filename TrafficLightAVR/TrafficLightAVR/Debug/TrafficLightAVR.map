@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Mon Jun 27 23:14:27 2022
+AVRASM ver. 2.2.8  C:\Users\hgtll\Projects\ecom059-micro\TrafficLightAVR\TrafficLightAVR\trafficLightAVR.asm Tue Jun 28 10:48:28 2022
 
 
 EQU  SIGNATURE_000 0000001e
@@ -728,7 +728,7 @@ CSEG skip2        0000002f
 CSEG setState     000000cf
 CSEG display1     0000003e
 CSEG setDigit     00000085
-CSEG endInte      00000043
+CSEG exitISR      00000043
 CSEG initMsg      00000111
 CSEG puts         00000076
 CSEG resetState   000000cc
